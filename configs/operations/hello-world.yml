@@ -1,0 +1,15 @@
+---
+name: Hello World Operation
+
+events:
+  - issues.labeled
+
+tasks:
+  - name: Print a message to the console
+    call: print-to-console@default
+    args:
+      text: Hello World!
+  - call: create-issue-comment@createIssueCommentTagUser
+    args:
+      text: This comment is created by Hello World Operation
+      tagUser: peterzhuamazon

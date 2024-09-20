@@ -1,0 +1,18 @@
+---
+organizations:
+  - name: peterzhu-organization
+    projects:
+      - name: github-project-1
+        number: 1
+        fields:
+          - name: Sprint
+          - name: Dates
+          - name: Status
+      - name: github-project-2
+        number: 2
+        fields:
+          - name: Values
+          - name: Home Address
+    repositories:
+      - name: github-repo-1
+      - name: github-repo-2
