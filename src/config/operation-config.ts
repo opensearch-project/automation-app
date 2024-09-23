@@ -1,8 +1,8 @@
+import { Probot } from 'probot';
 import { Operation } from '../service/operation/operation';
 import { Task } from '../service/operation/task';
 import { OperationData, TaskData } from './types';
 import { Config } from './config';
-import { Probot } from 'probot';
 
 export class OperationConfig extends Config {
   private app: Probot;
@@ -57,7 +57,7 @@ export class OperationConfig extends Config {
   }
 
   private async _initTasks(taskDataArray: TaskData[]): Promise<Task[]> {
-    let taskObjArray: Task[] = [];
+    const taskObjArray: Task[] = [];
     for (const taskData of taskDataArray) {
       const taskObj = new Task(taskData.call, taskData.args, taskData.name);
       console.log(`Setup Task: ${taskObj.getName()}`);

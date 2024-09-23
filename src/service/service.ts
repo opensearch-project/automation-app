@@ -1,16 +1,19 @@
+import { Probot } from 'probot';
+import { WebhookEventMap } from '@octokit/webhooks-types';
+import { access, realpath } from 'fs/promises';
 import { Resource } from './resource/resource';
 import { Operation } from './operation/operation';
 import { ResourceConfig } from '../config/resource-config';
 import { OperationConfig } from '../config/operation-config';
 import { octokitAuth } from '../utility/octokit';
-import { Probot } from 'probot';
-import { WebhookEventMap } from '@octokit/webhooks-types';
-import { access, realpath } from 'fs/promises';
 
 export class Service {
   private name: string;
+
   private resource: Resource;
+
   private operation: Operation;
+
   private app: Probot;
 
   constructor(name: string) {

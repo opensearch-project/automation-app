@@ -2,8 +2,11 @@ import { TaskArgData } from '../../config/types';
 
 export class Task {
   private name: string; // uid
+
   private callName: string;
+
   private callFunc: string = 'default';
+
   private callArgs: TaskArgData;
 
   constructor(call: string, callArgs: TaskArgData, name?: string) {

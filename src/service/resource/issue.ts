@@ -1,9 +1,11 @@
+import { ProbotOctokit } from 'probot';
 import { Entity } from './entity';
-import { ProbotOctokit } from 'probot'
 
 export class Issue extends Entity {
   private issueNumber: number; // uid
+
   private repositoryName: string;
+
   private isPull: boolean;
 
   constructor(orgName: string, repoName: string, issueNumber: number, isPull: boolean = false) {

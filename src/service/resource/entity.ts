@@ -1,7 +1,10 @@
 import { ProbotOctokit } from 'probot';
+
 export abstract class Entity {
   protected orgName: string;
+
   protected nodeId: string;
+
   protected context: any;
 
   constructor(orgName: string) {

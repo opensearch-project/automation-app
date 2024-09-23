@@ -1,9 +1,11 @@
+import { ProbotOctokit } from 'probot';
 import { Entity } from './entity';
-import { ProbotOctokit } from 'probot'
 
 export class ProjectField extends Entity {
   private fieldName: string; // uid
+
   private fieldType: string;
+
   private projectNumber: number;
 
   constructor(orgName: string, projNumber: number, fieldName: string) {

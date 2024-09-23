@@ -1,5 +1,5 @@
+import { ProbotOctokit } from 'probot';
 import { Entity } from './entity';
-import { ProbotOctokit } from 'probot'
 
 export class Repository extends Entity {
   private repositoryName: string; // uid

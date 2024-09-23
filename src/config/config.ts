@@ -1,12 +1,14 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import * as yaml from 'js-yaml';
+import { load, YAMLException } from 'js-yaml';
 import { readFileSync, realpathSync } from 'fs';
 import { ResourceData, OperationData } from './types';
 
 export abstract class Config {
   protected configType: string;
+
   protected configData: ResourceData | OperationData;
+
   protected configSchema: any;
 
   constructor(configType: string) {
@@ -18,11 +20,11 @@ export abstract class Config {
     try {
       console.log(`Loading ${this.configType} config: ${realFilePath}`);
       // Easier to convert YAML to JSON then parse and validate
-      const yaml2json = JSON.stringify(yaml.load(readFileSync(realFilePath, 'utf-8')));
-      console.log(yaml2json)
-      return JSON.parse(yaml2json)
+      const yaml2json = JSON.stringify(load(readFileSync(realFilePath, 'utf-8')));
+      console.log(yaml2json);
+      return JSON.parse(yaml2json);
     } catch (e) {
-      if (e instanceof yaml.YAMLException) {
+      if (e instanceof YAMLException) {
         console.error('YAML parsing error:', e.message);
       } else {
         console.error('Error:', e);

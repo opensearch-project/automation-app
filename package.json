@@ -17,7 +17,8 @@
     "watch": "tsc -w",
     "start": "npm run clean && npm run build && probot run ./bin/app.js",
     "clean": "rm -rf ./bin/*",
-    "format": "prettier --write \"src/**/*.{js,ts}\"",
+    "format": "prettier --write \"src/**/*.{js,ts}\" \"test/**/*.ts\" \"configs/**/*.{yaml,yml}\"",
+    "lint": "eslint --fix \"src/**/*.ts\" \"test/**/*.ts\" --ignore-pattern \"**/*.d.ts\"",
     "test": "jest"
   },
   "dependencies": {
@@ -38,7 +39,12 @@
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.0.0",
-    "eslint": "^9.10.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^18.0.0",
+    "eslint-plugin-import": "^2.30.0",
     "globals": "^15.9.0",
     "jest": "^29.7.0",
     "nock": "^14.0.0-beta.5",

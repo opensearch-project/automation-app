@@ -1,11 +1,13 @@
+import { ProbotOctokit } from 'probot';
 import { Entity } from './entity';
 import { Project } from './project';
 import { Repository } from './repository';
-import { ProbotOctokit } from 'probot'
 
 export class Organization extends Entity {
   private organizationName: string; // uid
+
   private projects: Map<number, Project>;
+
   private repositories: Map<string, Repository>;
 
   constructor(orgName: string, projs: Map<number, Project>, repos: Map<string, Repository>) {

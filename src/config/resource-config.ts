@@ -1,3 +1,4 @@
+import { ProbotOctokit } from 'probot';
 import { ResourceData, OrganizationData } from './types';
 import { Resource } from '../service/resource/resource';
 import { Organization } from '../service/resource/organization';
@@ -5,7 +6,6 @@ import { ProjectField } from '../service/resource/project-field';
 import { Project } from '../service/resource/project';
 import { Repository } from '../service/resource/repository';
 import { Config } from './config';
-import { ProbotOctokit } from 'probot';
 
 export class ResourceConfig extends Config {
   private octokit: ProbotOctokit;
@@ -73,11 +73,11 @@ export class ResourceConfig extends Config {
     this.configData = super.readConfig(configPath);
     this.configSchema = ResourceConfig.configSchema;
     super.validateConfig(this.configData, this.configSchema);
-    this.octokit = octokit
+    this.octokit = octokit;
   }
 
   private async __initProjects(orgData: OrganizationData): Promise<Map<number, Project>> {
-    let projObjMap = new Map<number, Project>();
+    const projObjMap = new Map<number, Project>();
     for (const projData of orgData.projects) {
       const projObj = new Project(orgData.name, projData.number);
       await projObj.setContext(this.octokit);
@@ -93,7 +93,7 @@ export class ResourceConfig extends Config {
   }
 
   private async __initRepositories(orgData: OrganizationData): Promise<Map<string, Repository>> {
-    let repoObjMap = new Map<string, Repository>();
+    const repoObjMap = new Map<string, Repository>();
     for (const repoData of orgData.repositories) {
       const repoObj = new Repository(orgData.name, repoData.name);
       await repoObj.setContext(this.octokit);
@@ -103,7 +103,7 @@ export class ResourceConfig extends Config {
   }
 
   private async __initOrganizations(): Promise<Map<string, Organization>> {
-    let orgObjMap = new Map<string, Organization>();
+    const orgObjMap = new Map<string, Organization>();
     for (const orgData of (this.configData as ResourceData).organizations) {
       const orgObj = new Organization(
         orgData.name,
