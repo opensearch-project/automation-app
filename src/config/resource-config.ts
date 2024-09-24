@@ -78,19 +78,26 @@ export class ResourceConfig extends Config {
 
   private async _initProjects(orgData: OrganizationData): Promise<Map<number, Project>> {
     const projObjMap = new Map<number, Project>();
-    for (const projData of orgData.projects) {
-      const projObj = new Project(orgData.name, projData.number);
-      await projObj.setContext(this.octokit);
 
-      if (projData.fields) {
-        for (const projFieldData of projData.fields) {
-          const projFieldObj = new ProjectField(orgData.name, projData.number, projFieldData.name);
-          await projFieldObj.setContext(this.octokit, projObj.getNodeId());
-          projObj.addField(projFieldObj);
+    await Promise.all(
+      orgData.projects.map(async (projData) => {
+        const projObj = new Project(orgData.name, projData.number);
+        await projObj.setContext(this.octokit);
+
+        if (projData.fields) {
+          await Promise.all(
+            projData.fields.map(async (projFieldData) => {
+              const projFieldObj = new ProjectField(orgData.name, projData.number, projFieldData.name);
+              await projFieldObj.setContext(this.octokit, projObj.getNodeId());
+              projObj.addField(projFieldObj);
+            }),
+          );
         }
-      }
-      projObjMap.set(projData.number, projObj);
-    }
+
+        projObjMap.set(projData.number, projObj);
+      }),
+    );
+
     return projObjMap;
   }
 
