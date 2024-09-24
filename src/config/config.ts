@@ -4,7 +4,7 @@ import { load, YAMLException } from 'js-yaml';
 import { readFileSync, realpathSync } from 'fs';
 import { ResourceData, OperationData } from './types';
 
-export class Config {
+export abstract class Config {
   protected configType: string;
 
   protected configData: ResourceData | OperationData;
