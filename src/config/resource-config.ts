@@ -105,11 +105,7 @@ export class ResourceConfig extends Config {
   private async __initOrganizations(): Promise<Map<string, Organization>> {
     const orgObjMap = new Map<string, Organization>();
     for (const orgData of (this.configData as ResourceData).organizations) {
-      const orgObj = new Organization(
-        orgData.name,
-        await this.__initProjects(orgData),
-        await this.__initRepositories(orgData),
-      );
+      const orgObj = new Organization(orgData.name, await this.__initProjects(orgData), await this.__initRepositories(orgData));
       await orgObj.setContext(this.octokit);
       orgObjMap.set(orgData.name, orgObj);
     }

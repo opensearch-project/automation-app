@@ -12,20 +12,12 @@ export interface CreateIssueCommentParams {
   tagUser?: string;
 }
 
-export default async function createIssueComment(
-  app: Probot,
-  context: any,
-  { text }: CreateIssueCommentParams,
-): Promise<void> {
+export default async function createIssueComment(app: Probot, context: any, { text }: CreateIssueCommentParams): Promise<void> {
   const comment = context.issue({ body: dedent`${text}` });
   context.octokit.issues.createComment(comment);
 }
 
-export async function createIssueCommentTagUser(
-  app: Probot,
-  context: any,
-  { text, tagUser }: CreateIssueCommentParams,
-): Promise<void> {
+export async function createIssueCommentTagUser(app: Probot, context: any, { text, tagUser }: CreateIssueCommentParams): Promise<void> {
   const comment = context.issue({ body: dedent`@${tagUser}: ${text}` });
   context.octokit.issues.createComment(comment);
 }

@@ -18,9 +18,7 @@ const issueCreatedBody = { body: 'Thanks for opening this issue!' };
 
 const privateKey = fs.readFileSync(path.join(__dirname, 'fixtures/mock-cert.pem'), 'utf-8');
 
-const payload = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'fixtures/issues.opened.json'), 'utf-8'),
-);
+const payload = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/issues.opened.json'), 'utf-8'));
 
 describe('My Probot app', () => {
   let probot: any;

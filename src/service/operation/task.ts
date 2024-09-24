@@ -15,7 +15,10 @@ export class Task {
     this.callFunc = callArray[1];
     this.callArgs = callArgs;
     const randomString = require('randomstring');
-    const namePostfix = randomString.generate({ length: 8, charset: 'alphanumeric' });
+    const namePostfix = randomString.generate({
+      length: 8,
+      charset: 'alphanumeric',
+    });
     this.name = name ? `${name}#${namePostfix}` : `${this.callName}#${namePostfix}`;
   }
 

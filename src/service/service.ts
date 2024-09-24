@@ -32,11 +32,7 @@ export class Service {
     return this.operation;
   }
 
-  public async initService(
-    resourceConfigPath: string,
-    operationConfigPath: string,
-    app: Probot,
-  ): Promise<void> {
+  public async initService(resourceConfigPath: string, operationConfigPath: string, app: Probot): Promise<void> {
     app.log.info(`Initializing Service: ${this.name} `);
     // Get octokit client so Resource object will get context
     const octokit = await octokitAuth(app, Number(process.env.INSTALLATION_ID));
@@ -81,9 +77,7 @@ export class Service {
               if (typeof callFuncCustom === 'function') {
                 await callFuncCustom(this.app, context, { ...callArgs });
               } else {
-                throw new Error(
-                  `${callFuncCustom} is not a function, please verify in ${callPath}`,
-                );
+                throw new Error(`${callFuncCustom} is not a function, please verify in ${callPath}`);
               }
             }
           }

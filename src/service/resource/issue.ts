@@ -30,9 +30,7 @@ export class Issue extends Entity {
           repo: this.repositoryName,
           pull_number: this.issueNumber,
         });
-        console.log(
-          `Set issue context: ${this.orgName}/${this.repositoryName}#${this.issueNumber}`,
-        );
+        console.log(`Set issue context: ${this.orgName}/${this.repositoryName}#${this.issueNumber}`);
       }
       this.nodeId = this.context.data.node_id;
     } catch (e) {

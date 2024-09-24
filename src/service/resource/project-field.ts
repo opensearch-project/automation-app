@@ -55,21 +55,21 @@ export class ProjectField extends Entity {
         }
       `;
       const allFieldContextArray: any = await octokit.graphql(projFieldQuery);
-      console.log(
-        `Set projectfield context: ${this.orgName}/project/${this.projectNumber}/field/${this.fieldName}`,
-      );
+      console.log(`Set projectfield context: ${this.orgName}/project/${this.projectNumber}/field/${this.fieldName}`);
 
       // There are total of 5 datatypes for GitHub Project Fields
       // The ProjectV2Field map to TEXT NUMBER DATE
       // While ProjectV2IterationField map to ITERATION, and ProjectV2SingleSelectField map to SINGLE_SELECT
-      for (const fieldContext of allFieldContextArray.node.fields.nodes) {
-        if (this.fieldName === fieldContext.name) {
-          this.nodeId = fieldContext.id;
-          this.fieldType = fieldContext.dataType;
-          this.context = fieldContext;
-          break;
-        }
+
+      const fieldContext = allFieldContextArray.node.fields.nodes.find((field: Record<string, string>) => field.name === this.fieldName);
+
+      if (!fieldContext) {
+        throw new Error(`${this.fieldName} not found! Please check organization ${this.orgName} project ${this.projectNumber} and verify that field exist.`);
       }
+
+      this.nodeId = fieldContext.id;
+      this.fieldType = fieldContext.dataType;
+      this.context = fieldContext;
     } catch (e) {
       console.error(`ERROR: ${e}`);
     }

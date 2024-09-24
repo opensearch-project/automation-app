@@ -6,11 +6,7 @@ export default async (app: Probot) => {
   app.log.info('OpenSearch Automation App is starting now......');
 
   const srvObj = new Service('Hello World Service');
-  await srvObj.initService(
-    'configs/resources/peterzhu-organization.yml',
-    'configs/operations/hello-world.yml',
-    app,
-  );
+  await srvObj.initService('configs/resources/peterzhu-organization.yml', 'configs/operations/hello-world.yml', app);
   await srvObj.registerEvents();
 
   app.log.info('All objects initialized, start listening events......');
