@@ -45,7 +45,7 @@ export class ResourceConfig extends Config {
                     },
                   },
                 },
-                required: ['name', 'number', 'fields'],
+                required: ['name', 'number'],
               },
             },
             repositories: {
@@ -61,7 +61,7 @@ export class ResourceConfig extends Config {
               },
             },
           },
-          required: ['name', 'projects', 'repositories'],
+          required: ['name'],
         },
       },
     },
@@ -76,7 +76,7 @@ export class ResourceConfig extends Config {
     this.octokit = octokit;
   }
 
-  private async __initProjects(orgData: OrganizationData): Promise<Map<number, Project>> {
+  private async _initProjects(orgData: OrganizationData): Promise<Map<number, Project>> {
     const projObjMap = new Map<number, Project>();
     for (const projData of orgData.projects) {
       const projObj = new Project(orgData.name, projData.number);
@@ -92,7 +92,7 @@ export class ResourceConfig extends Config {
     return projObjMap;
   }
 
-  private async __initRepositories(orgData: OrganizationData): Promise<Map<string, Repository>> {
+  private async _initRepositories(orgData: OrganizationData): Promise<Map<string, Repository>> {
     const repoObjMap = new Map<string, Repository>();
     for (const repoData of orgData.repositories) {
       const repoObj = new Repository(orgData.name, repoData.name);
@@ -102,10 +102,12 @@ export class ResourceConfig extends Config {
     return repoObjMap;
   }
 
-  private async __initOrganizations(): Promise<Map<string, Organization>> {
+  private async _initOrganizations(): Promise<Map<string, Organization>> {
     const orgObjMap = new Map<string, Organization>();
     for (const orgData of (this.configData as ResourceData).organizations) {
-      const orgObj = new Organization(orgData.name, await this.__initProjects(orgData), await this.__initRepositories(orgData));
+      const projObjMap = orgData.projects ? await this._initProjects(orgData) : new Map<number, Project>();
+      const repoObjMap = orgData.repositories ? await this._initRepositories(orgData) : new Map<string, Repository>();
+      const orgObj = new Organization(orgData.name, projObjMap, repoObjMap);
       await orgObj.setContext(this.octokit);
       orgObjMap.set(orgData.name, orgObj);
     }
@@ -113,6 +115,6 @@ export class ResourceConfig extends Config {
   }
 
   public async initResource(): Promise<Resource> {
-    return new Resource(await this.__initOrganizations());
+    return new Resource(await this._initOrganizations());
   }
 }

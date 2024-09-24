@@ -49,40 +49,38 @@ export class Service {
     console.log(`Evaluate events: [${events}]`);
     if (!events) {
       throw new Error('No events defined in the operation!');
-    } else {
-      for (const event of events) {
-        console.log(`Register event: "${event}"`);
-        this.app.on(event as keyof WebhookEventMap, async (context) => {
-          for (const task of tasks) {
-            const callPath = await realpath(`./bin/call/${task.getCallName()}.js`);
-            const callFunc = task.getCallFunc();
-            const callArgs = task.getCallArgs();
+    }
+    for (const event of events) {
+      console.log(`Register event: "${event}"`);
+      this.app.on(event as keyof WebhookEventMap, async (context) => {
+        for (const task of tasks) {
+          const callPath = await realpath(`./bin/call/${task.getCallName()}.js`);
+          const callFunc = task.getCallFunc();
+          const callArgs = task.getCallArgs();
 
-            console.log(`Verify call lib: ${callPath}`);
-            try {
-              await access(callPath);
-            } catch (e) {
-              console.error(`ERROR: ${e}`);
-            }
-
-            console.log(`Import call function: ${callFunc}`);
-            const callStack = await import(callPath);
-            if (callFunc === 'default') {
-              console.log(`Call default function: [${callStack.default.name}]`);
-              await callStack.default(this.app, context, { ...callArgs });
-            } else {
-              console.log(callStack);
-              const callFuncCustom = callStack[callFunc];
-              console.log(`Call custom function: [${callFuncCustom.name}]`);
-              if (typeof callFuncCustom === 'function') {
-                await callFuncCustom(this.app, context, { ...callArgs });
-              } else {
-                throw new Error(`${callFuncCustom} is not a function, please verify in ${callPath}`);
-              }
-            }
+          console.log(`Verify call lib: ${callPath}`);
+          try {
+            await access(callPath);
+          } catch (e) {
+            console.error(`ERROR: ${e}`);
           }
-        });
-      }
+
+          console.log(`Import call function: ${callFunc}`);
+          const callStack = await import(callPath);
+          if (callFunc === 'default') {
+            console.log(`Call default function: [${callStack.default.name}]`);
+            await callStack.default(this.app, context, { ...callArgs });
+          } else {
+            console.log(callStack);
+            const callFuncCustom = callStack[callFunc];
+            console.log(`Call custom function: [${callFuncCustom.name}]`);
+            if (!(typeof callFuncCustom === 'function')) {
+              throw new Error(`${callFuncCustom} is not a function, please verify in ${callPath}`);
+            }
+            await callFuncCustom(this.app, context, { ...callArgs });
+          }
+        }
+      });
     }
   }
 }
