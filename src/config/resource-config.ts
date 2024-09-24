@@ -82,10 +82,12 @@ export class ResourceConfig extends Config {
       const projObj = new Project(orgData.name, projData.number);
       await projObj.setContext(this.octokit);
 
-      for (const projFieldData of projData.fields) {
-        const projFieldObj = new ProjectField(orgData.name, projData.number, projFieldData.name);
-        await projFieldObj.setContext(this.octokit, projObj.getNodeId());
-        projObj.addField(projFieldObj);
+      if (projData.fields) {
+        for (const projFieldData of projData.fields) {
+          const projFieldObj = new ProjectField(orgData.name, projData.number, projFieldData.name);
+          await projFieldObj.setContext(this.octokit, projObj.getNodeId());
+          projObj.addField(projFieldObj);
+        }
       }
       projObjMap.set(projData.number, projObj);
     }
