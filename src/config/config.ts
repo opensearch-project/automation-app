@@ -4,7 +4,7 @@ import { load, YAMLException } from 'js-yaml';
 import { readFileSync, realpathSync } from 'fs';
 import { ResourceData, OperationData } from './types';
 
-export abstract class Config {
+export class Config {
   protected configType: string;
 
   protected configData: ResourceData | OperationData;
@@ -15,10 +15,10 @@ export abstract class Config {
     this.configType = configType;
   }
 
-  protected readConfig(filePath: string): any {
+  protected static readConfig(filePath: string): any {
     const realFilePath = realpathSync(filePath);
     try {
-      console.log(`Loading ${this.configType} config: ${realFilePath}`);
+      console.log(`Loading config: ${realFilePath}`);
       // Easier to convert YAML to JSON then parse and validate
       const yaml2json = JSON.stringify(load(readFileSync(realFilePath, 'utf-8')));
       console.log(yaml2json);
@@ -29,10 +29,11 @@ export abstract class Config {
       } else {
         console.error('Error:', e);
       }
+      return null;
     }
   }
 
-  protected validateConfig(data: ResourceData | OperationData, schema: any): void {
+  protected static validateConfig(data: ResourceData | OperationData, schema: any): void {
     console.log('Validating Schema......');
     const ajv = new Ajv();
     addFormats(ajv);

@@ -27,6 +27,7 @@ module.exports = {
     'max-classes-per-file': 'off',
     'no-new': 'off',
     "no-console": "off",
+    "no-underscore-dangle": 'off',
     'max-len': ['error', { code: 160, ignoreComments: true }],
   },
 };

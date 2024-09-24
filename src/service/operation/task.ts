@@ -1,3 +1,4 @@
+import randomstring from 'randomstring';
 import { TaskArgData } from '../../config/types';
 
 export class Task {
@@ -11,14 +12,9 @@ export class Task {
 
   constructor(call: string, callArgs: TaskArgData, name?: string) {
     const callArray = call.trim().split('@');
-    this.callName = callArray[0];
-    this.callFunc = callArray[1];
+    [this.callName, this.callFunc] = callArray;
     this.callArgs = callArgs;
-    const randomString = require('randomstring');
-    const namePostfix = randomString.generate({
-      length: 8,
-      charset: 'alphanumeric',
-    });
+    const namePostfix = randomstring.generate(8);
     this.name = name ? `${name}#${namePostfix}` : `${this.callName}#${namePostfix}`;
   }
 

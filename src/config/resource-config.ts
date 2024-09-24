@@ -70,9 +70,9 @@ export class ResourceConfig extends Config {
 
   constructor(configPath: string, octokit: ProbotOctokit) {
     super('ResourceConfig');
-    this.configData = super.readConfig(configPath);
+    this.configData = ResourceConfig.readConfig(configPath);
     this.configSchema = ResourceConfig.configSchema;
-    super.validateConfig(this.configData, this.configSchema);
+    ResourceConfig.validateConfig(this.configData, this.configSchema);
     this.octokit = octokit;
   }
 

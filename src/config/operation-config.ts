@@ -46,9 +46,9 @@ export class OperationConfig extends Config {
 
   constructor(configPath: string, app: Probot) {
     super('OperationConfig');
-    this.configData = super.readConfig(configPath);
+    this.configData = OperationConfig.readConfig(configPath);
     this.configSchema = OperationConfig.configSchema;
-    super.validateConfig(this.configData, this.configSchema);
+    OperationConfig.validateConfig(this.configData, this.configSchema);
     this.app = app;
   }
 
@@ -56,13 +56,12 @@ export class OperationConfig extends Config {
     return this.app;
   }
 
-  private async _initTasks(taskDataArray: TaskData[]): Promise<Task[]> {
-    const taskObjArray: Task[] = [];
-    for (const taskData of taskDataArray) {
+  private static async _initTasks(taskDataArray: TaskData[]): Promise<Task[]> {
+    const taskObjArray = taskDataArray.map((taskData) => {
       const taskObj = new Task(taskData.call, taskData.args, taskData.name);
       console.log(`Setup Task: ${taskObj.getName()}`);
-      taskObjArray.push(taskObj);
-    }
+      return taskObj;
+    });
     return taskObjArray;
   }
 
@@ -70,7 +69,7 @@ export class OperationConfig extends Config {
     const opObj = new Operation(
       (this.configData as OperationData).name,
       (this.configData as OperationData).events,
-      await this._initTasks((this.configData as OperationData).tasks),
+      await OperationConfig._initTasks((this.configData as OperationData).tasks),
     );
     console.log(`Setup Operation: ${opObj.getName()}`);
     return opObj;
