@@ -6,14 +6,13 @@ export default async (app: Probot) => {
   app.log.info('OpenSearch Automation App is starting now......');
 
   const srvObj = new Service('Hello World Service');
-  await srvObj.initService(
-    'configs/resources/peterzhu-organization.yml',
-    'configs/operations/hello-world.yml',
-    // 'configs/operations/github-merged-pulls-monitor.yml',
-    // 'configs/operations/github-workflow-runs-monitor.yml',
-    app,
-  );
-  await srvObj.registerEvents();
+  const resourceConfig: string = process.env.RESOURCE_CONFIG || '';
+  const processConfig: string = process.env.OPERATION_CONFIG || '';
+
+  if (resourceConfig === '' || processConfig === '') {
+    throw new Error(`Invalid config path: RESOURCE_CONFIG=${resourceConfig} or OPERATION_CONFIG=${processConfig}`);
+  }
+  await srvObj.initService(app, resourceConfig, processConfig);
 
   app.log.info('All objects initialized, start listening events......');
 };

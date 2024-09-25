@@ -29,7 +29,7 @@ export default async function githubMergedPullsMonitor(app: Probot, context: any
     (check: { name: any; id: any; conclusion: any; status: any; started_at: any; completed_at: any; display_title: any; url: any; html_url: any }) => {
       const logData = {
         id: check.id,
-        number: pr.number, // change to number
+        number: pr.number,
         html_url: pr.html_url,
         url: pr.url,
         user_login: pr.user.login,

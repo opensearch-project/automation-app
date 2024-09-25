@@ -68,7 +68,7 @@ export class ResourceConfig extends Config {
     required: ['organizations'],
   };
 
-  constructor(configPath: string, octokit: ProbotOctokit) {
+  constructor(octokit: ProbotOctokit, configPath: string) {
     super('ResourceConfig');
     this.configData = ResourceConfig.readConfig(configPath);
     this.configSchema = ResourceConfig.configSchema;
