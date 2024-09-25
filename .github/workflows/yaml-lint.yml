@@ -1,0 +1,19 @@
+---
+name: yaml-lint
+
+on: [push, pull_request]
+
+jobs:
+  yaml-lint:
+    name: 'yaml-lint'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'Yaml Lint'
+        uses: karancode/yamllint-github-action@master
+        with:
+          yamllint_file_or_dir: 'configs'
+          yamllint_strict: false
+          yamllint_comment: true
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
