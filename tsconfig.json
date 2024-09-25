@@ -4,11 +4,7 @@
     "target": "es2022",
     "module": "commonjs",
     "outDir": "./bin",
-
-    /* Strict Type-Checking Options */
     "strict": true,
-
-    /* Additional Checks */
     "declaration": true,
     "noImplicitAny": true,
     "strictNullChecks": true,

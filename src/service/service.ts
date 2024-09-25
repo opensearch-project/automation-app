@@ -1,5 +1,5 @@
 import { Probot } from 'probot';
-import { WebhookEventMap } from '@octokit/webhooks-types';
+import type { WebhookEventMap } from '@octokit/webhooks-types';
 import { access, realpath } from 'fs/promises';
 import { Resource } from './resource/resource';
 import { Operation } from './operation/operation';
@@ -50,37 +50,38 @@ export class Service {
     if (!events) {
       throw new Error('No events defined in the operation!');
     }
-    for (const event of events) {
+    events.forEach((event) => {
       console.log(`Register event: "${event}"`);
       this.app.on(event as keyof WebhookEventMap, async (context) => {
-        for (const task of tasks) {
+        await tasks.reduce(async (promise, task) => {
+          await promise; // Make sure tasks are completed in sequential orders
+
           const callPath = await realpath(`./bin/call/${task.getCallName()}.js`);
           const callFunc = task.getCallFunc();
           const callArgs = task.getCallArgs();
 
-          console.log(`Verify call lib: ${callPath}`);
+          console.log(`[${event}]: Verify call lib: ${callPath}`);
           try {
             await access(callPath);
           } catch (e) {
             console.error(`ERROR: ${e}`);
           }
 
-          console.log(`Import call function: ${callFunc}`);
           const callStack = await import(callPath);
           if (callFunc === 'default') {
-            console.log(`Call default function: [${callStack.default.name}]`);
+            console.log(`[${event}]: Call default function: [${callStack.default.name}]`);
             await callStack.default(this.app, context, { ...callArgs });
           } else {
             console.log(callStack);
             const callFuncCustom = callStack[callFunc];
-            console.log(`Call custom function: [${callFuncCustom.name}]`);
+            console.log(`[${event}]: Call custom function: [${callFuncCustom.name}]`);
             if (!(typeof callFuncCustom === 'function')) {
-              throw new Error(`${callFuncCustom} is not a function, please verify in ${callPath}`);
+              throw new Error(`[${event}]: ${callFuncCustom} is not a function, please verify in ${callPath}`);
             }
             await callFuncCustom(this.app, context, { ...callArgs });
           }
-        }
+        }, Promise.resolve());
       });
-    }
+    });
   }
 }

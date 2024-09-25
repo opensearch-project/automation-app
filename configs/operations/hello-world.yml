@@ -3,6 +3,7 @@ name: Hello World Operation
 
 events:
   - issues.labeled
+  - issues.assigned
 
 tasks:
   - name: Print a message to the console

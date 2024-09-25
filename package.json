@@ -13,9 +13,9 @@
     "automation-app"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run clean && npm run format && npm run lint && tsc",
     "watch": "tsc -w",
-    "start": "npm run clean && npm run build && probot run ./bin/app.js",
+    "start": "npm run build && probot run ./bin/app.js",
     "clean": "rm -rf ./bin/*",
     "format": "prettier --write \"src/**/*.{js,ts}\" \"test/**/*.ts\" \"configs/**/*.{yaml,yml}\"",
     "lint": "eslint --fix \"src/**/*.ts\" --ignore-pattern \"**/*.d.ts\"",

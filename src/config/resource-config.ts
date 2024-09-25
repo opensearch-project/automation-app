@@ -103,23 +103,30 @@ export class ResourceConfig extends Config {
 
   private async _initRepositories(orgData: OrganizationData): Promise<Map<string, Repository>> {
     const repoObjMap = new Map<string, Repository>();
-    for (const repoData of orgData.repositories) {
-      const repoObj = new Repository(orgData.name, repoData.name);
-      await repoObj.setContext(this.octokit);
-      repoObjMap.set(repoData.name, repoObj);
-    }
+    await Promise.all(
+      orgData.repositories.map(async (repoData) => {
+        const repoObj = new Repository(orgData.name, repoData.name);
+        await repoObj.setContext(this.octokit);
+        repoObjMap.set(repoData.name, repoObj);
+      }),
+    );
+
     return repoObjMap;
   }
 
   private async _initOrganizations(): Promise<Map<string, Organization>> {
     const orgObjMap = new Map<string, Organization>();
-    for (const orgData of (this.configData as ResourceData).organizations) {
-      const projObjMap = orgData.projects ? await this._initProjects(orgData) : new Map<number, Project>();
-      const repoObjMap = orgData.repositories ? await this._initRepositories(orgData) : new Map<string, Repository>();
-      const orgObj = new Organization(orgData.name, projObjMap, repoObjMap);
-      await orgObj.setContext(this.octokit);
-      orgObjMap.set(orgData.name, orgObj);
-    }
+    await Promise.all(
+      (this.configData as ResourceData).organizations.map(async (orgData) => {
+        const projObjMap = orgData.projects ? await this._initProjects(orgData) : new Map<number, Project>();
+        const repoObjMap = orgData.repositories ? await this._initRepositories(orgData) : new Map<string, Repository>();
+
+        const orgObj = new Organization(orgData.name, projObjMap, repoObjMap);
+        await orgObj.setContext(this.octokit);
+
+        orgObjMap.set(orgData.name, orgObj);
+      }),
+    );
     return orgObjMap;
   }
 
