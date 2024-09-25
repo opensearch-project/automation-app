@@ -19,10 +19,10 @@ The automation app utilizes the [Probot](https://probot.github.io/) framework an
 
 ### Service
 
-A **Service** is an instance of the app that manages and manipulates specific `Resources` while performing defined `Operations`.
+A **Service** is an instance of the app that manages and manipulates specific `Resource` while performing defined `Operation`.
 * **Resource**: Objects or entities the service will manage or modify, such as GitHub organizations, project, repositories, issues, etc.
-* **Operation**: A list of **Tasks** triggered by events with the resources.
-* **Task**: Executed sequentially within an **Operation** to perform action, such as create comments, update labels, add issue to project, etc.
+* **Operation**: A list of `Tasks` triggered by events with the resources.
+* **Task**: Executed sequentially within an `Operation` to perform action, such as create comments, update labels, add issue to project, etc.
 * **Call**: The callstack that contains the implementation of the aformentioned task action.
 
 ### Create a Service
@@ -44,9 +44,9 @@ RESOURCE_CONFIG=configs/resources/sample-resource.yml OPERATION_CONFIG=configs/o
 ```
 
 When you run the above command, the following takes place:
-1. The app starts a **Service** instance based on the specified configurations.
-1. Retrieves the **[GitHub Context](https://probot.github.io/api/latest/classes/context.Context.html)** (or any other defined context) for all the resources listed in the resource config file.
-1. Registers and listens for events, executes the **Tasks** defined in the operation config. These tasks will be executed sequentially when the corresponding events occur.
+1. The app starts a `Service` instance based on the specified configurations.
+1. Retrieves the [GitHub Context](https://probot.github.io/api/latest/classes/context.Context.html) (or any other defined context) for all the resources listed in the resource config file.
+1. Registers and listens for events, executes the `Tasks` defined in the operation config. These tasks will be executed sequentially when the corresponding events occur.
 
 ## Code of Conduct
 
