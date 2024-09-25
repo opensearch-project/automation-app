@@ -18,6 +18,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies and build the code
-        run: |
-          npm install
-          npm run build
+        run: npm install
+      - name: Verify styling
+        run: npm run format-dryrun
+      - name: Run build
+        run: npm run build

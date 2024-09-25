@@ -8,12 +8,12 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 
 ## Current Maintainers
 
-| Maintainer         | GitHub ID                                                 | Affiliation |
-| ------------------ | --------------------------------------------------------- | ----------- |
-| Peter Zhu          | [peterzhuamazon](https://github.com/peterzhuamazon)       | Amazon      |
-| Saurabh Sing       | [getsaurabh02](https://github.com/getsaurabh02)           | Amazon      |
+| Maintainer   | GitHub ID                                           | Affiliation |
+| ------------ | --------------------------------------------------- | ----------- |
+| Peter Zhu    | [peterzhuamazon](https://github.com/peterzhuamazon) | Amazon      |
+| Saurabh Sing | [getsaurabh02](https://github.com/getsaurabh02)     | Amazon      |
 
 ## Emeritus
 
-| Maintainer         | GitHub ID                                                 | Affiliation |
-| ------------------ | --------------------------------------------------------- | ----------- |
+| Maintainer | GitHub ID | Affiliation |
+| ---------- | --------- | ----------- |

@@ -26,8 +26,8 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'max-classes-per-file': 'off',
     'no-new': 'off',
-    "no-console": "off",
-    "no-underscore-dangle": 'off',
+    'no-console': 'off',
+    'no-underscore-dangle': 'off',
     'max-len': ['error', { code: 160, ignoreComments: true }],
   },
 };
