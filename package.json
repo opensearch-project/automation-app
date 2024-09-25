@@ -13,8 +13,8 @@
     "automation-app"
   ],
   "scripts": {
-    "build": "npm run clean && npm run format && npm run lint && tsc",
-    "watch": "tsc -w",
+    "build": "npm run clean && npm run format && npm run lint && npm run compile",
+    "compile": "tsc",
     "start": "npm run build && probot run ./bin/app.js",
     "clean": "rm -rf ./bin/*",
     "format": "prettier --write \"src/**/*.{js,ts}\" \"test/**/*.ts\" \"configs/**/*.{yaml,yml}\"",

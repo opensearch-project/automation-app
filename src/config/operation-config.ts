@@ -1,12 +1,9 @@
-import { Probot } from 'probot';
 import { Operation } from '../service/operation/operation';
 import { Task } from '../service/operation/task';
 import { OperationData, TaskData } from './types';
 import { Config } from './config';
 
 export class OperationConfig extends Config {
-  private app: Probot;
-
   private static configSchema = {
     type: 'object',
     properties: {
@@ -44,16 +41,11 @@ export class OperationConfig extends Config {
     required: ['name', 'events', 'tasks'],
   };
 
-  constructor(configPath: string, app: Probot) {
+  constructor(configPath: string) {
     super('OperationConfig');
     this.configData = OperationConfig.readConfig(configPath);
     this.configSchema = OperationConfig.configSchema;
     OperationConfig.validateConfig(this.configData, this.configSchema);
-    this.app = app;
-  }
-
-  public getApp(): Probot {
-    return this.app;
   }
 
   private static async _initTasks(taskDataArray: TaskData[]): Promise<Task[]> {

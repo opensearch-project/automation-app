@@ -1,7 +1,9 @@
 ---
 name: Hello World Operation
 
+# You can listen to either `all` events or specific events
 events:
+  #  - all
   - issues.labeled
   - issues.assigned
 
