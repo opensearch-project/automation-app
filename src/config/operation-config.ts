@@ -33,11 +33,21 @@ export class OperationConfig extends Config {
             args: {
               type: 'object',
               additionalProperties: {
-                type: 'string',
+                oneOf: [
+                  {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                    },
+                  },
+                  {
+                    type: 'string',
+                  },
+                ],
               },
             },
           },
-          required: ['call', 'args'],
+          required: ['call'],
         },
       },
     },

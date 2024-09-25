@@ -1,0 +1,22 @@
+---
+name: Workflow Runs Monitor
+
+events:
+  - workflow_run.completed
+
+tasks:
+  - name: Workflow Runs Monitor Operation
+    call: github-workflow-runs-monitor@default
+    args:
+      # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
+      events:
+        - 'pull_request'
+        - 'push'
+        - 'pull_request_target'
+        - 'release'
+        - 'issues'
+        - 'check_run'
+        - 'check_suite'
+        - 'issue_comment'
+        - 'schedule'
+        - 'workflow_dispatch'

@@ -1,0 +1,9 @@
+---
+name: Merged PRs Monitor with CI Status
+
+events:
+  - pull_request.closed
+
+tasks:
+  - name: PR Monitor Operation
+    call: github-merged-pulls-monitor@default

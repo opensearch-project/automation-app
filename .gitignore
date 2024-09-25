@@ -6,3 +6,8 @@ npm-debug.log
 coverage
 bin
 temp/*
+
+# Intellij files
+.idea/*
+
+.DS_Store
