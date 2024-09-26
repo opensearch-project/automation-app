@@ -1,3 +1,12 @@
+/*
+ * Copyright OpenSearch Contributors
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The OpenSearch Contributors require contributions made to
+ * this file be licensed under the Apache-2.0 license or a
+ * compatible open source license.
+ */
+
 import { Probot } from 'probot';
 import type { WebhookEventMap } from '@octokit/webhooks-types';
 import { access, realpath } from 'fs/promises';
@@ -6,7 +15,7 @@ import { Operation } from './operation/operation';
 import { Task } from './operation/task';
 import { ResourceConfig } from '../config/resource-config';
 import { OperationConfig } from '../config/operation-config';
-import { octokitAuth } from '../utility/octokit';
+import { octokitAuth } from '../utility/probot/octokit';
 
 export class Service {
   private name: string;

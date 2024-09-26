@@ -1,5 +1,5 @@
 ---
-name: build app
+name: build-test
 
 on: [push, pull_request]
 
@@ -27,3 +27,5 @@ jobs:
         run: echo "Please run 'npm run format' before commiting the code!"
       - name: Run build
         run: npm run build
+      - name: Run Test
+        run: npm test

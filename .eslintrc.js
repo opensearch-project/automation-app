@@ -1,3 +1,12 @@
+/*
+ * Copyright OpenSearch Contributors
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The OpenSearch Contributors require contributions made to
+ * this file be licensed under the Apache-2.0 license or a
+ * compatible open source license.
+ */
+
 module.exports = {
   env: {
     browser: false,
@@ -26,8 +35,8 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'max-classes-per-file': 'off',
     'no-new': 'off',
-    "no-console": "off",
-    "no-underscore-dangle": 'off',
+    'no-console': 'off',
+    'no-underscore-dangle': 'off',
     'max-len': ['error', { code: 160, ignoreComments: true }],
   },
 };
