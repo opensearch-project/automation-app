@@ -20,6 +20,10 @@ jobs:
       - name: Install dependencies and build the code
         run: npm install
       - name: Verify styling
+        id: style_verify
         run: npm run format-dryrun
+      - name: Verify styling failure msg
+        if: steps.style_verify.outcome == 'failure'
+        run: echo "Please run 'npm run format' before commiting the code!"
       - name: Run build
         run: npm run build

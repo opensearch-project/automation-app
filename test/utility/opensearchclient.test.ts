@@ -1,3 +1,11 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The OpenSearch Contributors require contributions made to
+ * this file be licensed under the Apache-2.0 license or a
+ * compatible open source license.
+ */
+
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { Client as OpenSearchClient } from '@opensearch-project/opensearch';
 import { OpensearchClient } from '../../src/utility/opensearchclient'; // Adjust import path as needed
@@ -29,7 +37,7 @@ describe('OpensearchClient', () => {
     delete process.env.REGION;
     delete process.env.OPENSEARCH_URL;
   });
-  
+
   beforeEach(() => {
     (STSClient as jest.Mock).mockImplementation(() => ({
       send: jest.fn().mockResolvedValue({
@@ -60,9 +68,7 @@ describe('OpensearchClient', () => {
 
       const opensearchClient = new OpensearchClient();
 
-      await expect(opensearchClient.getClient()).rejects.toThrow(
-        'Failed to assume role: credentials are undefined.'
-      );
+      await expect(opensearchClient.getClient()).rejects.toThrow('Failed to assume role: credentials are undefined.');
     });
   });
 
@@ -98,7 +104,7 @@ describe('OpensearchClient', () => {
       const index = 'test-index';
 
       await expect(opensearchClient.bulkIndex(index, documents)).rejects.toThrow(
-        'Bulk indexing errors: [{"type":"some_error","reason":"Some error occurred"}]'
+        'Bulk indexing errors: [{"type":"some_error","reason":"Some error occurred"}]',
       );
     });
   });
