@@ -19,7 +19,7 @@ The automation app utilizes the [Probot](https://probot.github.io/) framework an
 
 ### Service
 
-A **Service** is an instance of the app that manages and manipulates specific `Resource` while performing defined `Operation`.
+A `Service` is an instance of the app that manages and manipulates specific `Resource` while performing defined `Operation`.
 
 - **Resource**: Objects or entities the service will manage or modify, such as GitHub organizations, project, repositories, issues, etc.
 - **Operation**: A list of `Tasks` triggered by events with the resources.

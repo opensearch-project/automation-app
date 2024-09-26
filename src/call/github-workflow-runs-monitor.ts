@@ -1,4 +1,5 @@
-/**
+/*
+ * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
  *
  * The OpenSearch Contributors require contributions made to
@@ -9,16 +10,16 @@
 // Name         : githubWorkflowRunsMonitor
 // Description  : prints the githubWorkflowRunsMonitor output and indexes logData to OpenSearch
 // Arguments    :
-//   - events     : The list of events to monitor and index, from https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows.
+//  - events     : The list of events to monitor and index, from https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows.
 
 import { Probot } from 'probot';
-import { OpensearchClient } from '../utility/opensearchclient';
+import { OpensearchClient } from '../utility/opensearch/opensearch-client';
 
-interface WorkflowRunEvents {
+interface WorkflowRunMonitorArgs {
   events: string[];
 }
 
-export default async function githubWorkflowRunsMonitor(app: Probot, context: any, { events }: WorkflowRunEvents): Promise<void> {
+export default async function githubWorkflowRunsMonitor(app: Probot, context: any, { events }: WorkflowRunMonitorArgs): Promise<void> {
   const job = context.payload.workflow_run;
 
   if (!events.includes(job?.event)) {

@@ -1,4 +1,5 @@
-/**
+/*
+ * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
  *
  * The OpenSearch Contributors require contributions made to
@@ -14,7 +15,7 @@ import { Operation } from './operation/operation';
 import { Task } from './operation/task';
 import { ResourceConfig } from '../config/resource-config';
 import { OperationConfig } from '../config/operation-config';
-import { octokitAuth } from '../utility/octokit';
+import { octokitAuth } from '../utility/probot/octokit';
 
 export class Service {
   private name: string;

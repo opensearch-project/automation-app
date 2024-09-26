@@ -1,4 +1,5 @@
-/**
+/*
+ * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
  *
  * The OpenSearch Contributors require contributions made to
@@ -10,7 +11,7 @@
 // Description  : Monitors the CI workflows of merged pull requests, providing metrics that give an overview of whether pull requests were merged without passing CI checks.
 
 import { Probot } from 'probot';
-import { OpensearchClient } from '../utility/opensearchclient';
+import { OpensearchClient } from '../utility/opensearch/opensearch-client';
 
 export default async function githubMergedPullsMonitor(app: Probot, context: any): Promise<void> {
   const pr = context.payload.pull_request;

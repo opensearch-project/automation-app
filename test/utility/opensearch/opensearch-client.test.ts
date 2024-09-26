@@ -1,4 +1,5 @@
-/**
+/*
+ * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
  *
  * The OpenSearch Contributors require contributions made to
@@ -8,7 +9,7 @@
 
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { Client as OpenSearchClient } from '@opensearch-project/opensearch';
-import { OpensearchClient } from '../../src/utility/opensearchclient'; // Adjust import path as needed
+import { OpensearchClient } from '../../../src/utility/opensearch/opensearch-client';
 
 jest.mock('@aws-sdk/client-sts');
 jest.mock('@opensearch-project/opensearch');
