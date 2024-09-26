@@ -18,39 +18,43 @@ import { OperationConfig } from '../config/operation-config';
 import { octokitAuth } from '../utility/probot/octokit';
 
 export class Service {
-  private name: string;
+  private readonly _name: string;
 
-  private resource: Resource;
+  private _resource: Resource;
 
-  private operation: Operation;
+  private _operation: Operation;
 
-  private app: Probot;
+  private _app: Probot;
 
   constructor(name: string) {
-    this.name = name;
+    this._name = name;
   }
 
-  public getName(): string {
-    return this.name;
+  public get name(): string {
+    return this._name;
   }
 
-  public getResource(): Resource {
-    return this.resource;
+  public get resource(): Resource {
+    return this._resource;
   }
 
-  public getOpOperationn(): Operation {
-    return this.operation;
+  public get operation(): Operation {
+    return this._operation;
   }
 
-  public async initService(app: Probot, resourceConfigPath: string, operationConfigPath: string): Promise<void> {
+  private get app(): Probot {
+    return this._app;
+  }
+
+  public async initService(app: Probot, resourceConfigPath: string, operationConfigPath: string, additionalResourceContext: boolean): Promise<void> {
     app.log.info(`Initializing Service: ${this.name} `);
-    this.app = app;
+    this._app = app;
     // Get octokit client so Resource object will get context
     const octokit = await octokitAuth(this.app, Number(process.env.INSTALLATION_ID));
-    const resConfigObj = new ResourceConfig(octokit, resourceConfigPath);
-    this.resource = await resConfigObj.initResource();
+    const resConfigObj = new ResourceConfig(octokit, resourceConfigPath, additionalResourceContext);
+    this._resource = await resConfigObj.initResource();
     const opConfigObj = new OperationConfig(operationConfigPath);
-    this.operation = await opConfigObj.initOperation();
+    this._operation = await opConfigObj.initOperation();
     this._registerEvents();
   }
 
@@ -58,9 +62,9 @@ export class Service {
     await tasks.reduce(async (promise, task) => {
       await promise; // Make sure tasks are completed in sequential orders
 
-      const callPath = await realpath(`./bin/call/${task.getCallName()}.js`);
-      const callFunc = task.getCallFunc();
-      const callArgs = task.getCallArgs();
+      const callPath = await realpath(`./bin/call/${task.callName}.js`);
+      const { callFunc } = task;
+      const { callArgs } = task;
 
       console.log(`[${event}]: Verify call lib: ${callPath}`);
       try {
@@ -72,7 +76,7 @@ export class Service {
       const callStack = await import(callPath);
       if (callFunc === 'default') {
         console.log(`[${event}]: Call default function: [${callStack.default.name}]`);
-        await callStack.default(this.app, context, { ...callArgs });
+        await callStack.default(this.app, context, this.resource, { ...callArgs });
       } else {
         console.log(callStack);
         const callFuncCustom = callStack[callFunc];
@@ -80,14 +84,14 @@ export class Service {
         if (!(typeof callFuncCustom === 'function')) {
           throw new Error(`[${event}]: ${callFuncCustom} is not a function, please verify in ${callPath}`);
         }
-        await callFuncCustom(this.app, context, { ...callArgs });
+        await callFuncCustom(this.app, context, this.resource, { ...callArgs });
       }
     }, Promise.resolve());
   }
 
   private async _registerEvents(): Promise<void> {
-    const events = this.operation.getEvents();
-    const tasks = this.operation.getTasks();
+    const { events } = this.operation;
+    const { tasks } = this.operation;
     console.log(`Evaluate events: [${events}]`);
     if (!events) {
       throw new Error('No events defined in the operation!');
@@ -100,11 +104,11 @@ export class Service {
       console.log(`Register event: "${event}"`);
       if (event === 'all') {
         console.warn('WARNING! All events will be listened based on the config!');
-        this.app.onAny(async (context) => {
+        this._app.onAny(async (context) => {
           this._registerTasks(context, event, tasks);
         });
       } else {
-        this.app.on(event as keyof WebhookEventMap, async (context) => {
+        this._app.on(event as keyof WebhookEventMap, async (context) => {
           this._registerTasks(context, event, tasks);
         });
       }

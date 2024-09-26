@@ -13,48 +13,48 @@ import { Project } from './project';
 import { Repository } from './repository';
 
 export class Organization extends Entity {
-  private organizationName: string; // uid
+  private readonly _organizationName: string; // uid
 
-  private projects: Map<number, Project>;
+  private _projects: Map<number, Project>;
 
-  private repositories: Map<string, Repository>;
+  private _repositories: Map<string, Repository>;
 
   constructor(orgName: string, projs: Map<number, Project>, repos: Map<string, Repository>) {
     super(orgName);
-    this.organizationName = orgName;
-    this.projects = projs;
-    this.repositories = repos;
+    this._organizationName = orgName;
+    this._projects = projs;
+    this._repositories = repos;
   }
 
   public addProject(proj: Project): void {
-    this.projects = this.projects || new Map<number, Project>();
-    this.projects.set(proj.getProjectNumber(), proj);
+    this._projects = this._projects || new Map<number, Project>();
+    this._projects.set(proj.projectNumber, proj);
   }
 
   public addRepository(repo: Repository): void {
-    this.repositories = this.repositories || new Map<string, Repository>();
-    this.repositories.set(repo.getRepositoryName(), repo);
+    this._repositories = this._repositories || new Map<string, Repository>();
+    this._repositories.set(repo.repositoryName, repo);
   }
 
-  public getOrganizationName(): string {
-    return this.organizationName;
+  public get organizationName(): string {
+    return this._organizationName;
   }
 
-  public getProjects(): Map<number, Project> {
-    return this.projects;
+  public get projects(): Map<number, Project> {
+    return this._projects;
   }
 
-  public getRepositories(): Map<string, Repository> {
-    return this.repositories;
+  public get repositories(): Map<string, Repository> {
+    return this._repositories;
   }
 
   public async setContext(octokit: ProbotOctokit): Promise<void> {
     try {
-      this.context = await octokit.rest.orgs.get({
+      this._context = await octokit.rest.orgs.get({
         org: this.orgName,
       });
       console.log(`Set organization context: ${this.organizationName}`);
-      this.nodeId = this.context.data.node_id;
+      this._nodeId = this.context.data.node_id;
     } catch (e) {
       console.error(`ERROR: ${e}`);
     }

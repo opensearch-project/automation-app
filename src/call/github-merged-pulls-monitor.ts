@@ -11,9 +11,13 @@
 // Description  : Monitors the CI workflows of merged pull requests, providing metrics that give an overview of whether pull requests were merged without passing CI checks.
 
 import { Probot } from 'probot';
+import { Resource } from '../service/resource/resource';
 import { OpensearchClient } from '../utility/opensearch/opensearch-client';
+import { verifyOrgRepo } from '../utility/verification/verify-resource';
 
-export default async function githubMergedPullsMonitor(app: Probot, context: any): Promise<void> {
+export default async function githubMergedPullsMonitor(app: Probot, context: any, resource: Resource): Promise<void> {
+  if (!(await verifyOrgRepo(app, context, resource))) return;
+
   const pr = context.payload.pull_request;
 
   if (!pr.merged) {

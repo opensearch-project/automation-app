@@ -42,14 +42,27 @@ Once you have created the resource and operation configuration files, follow the
 1. Run the service using the following command:
 
 ```bash
-RESOURCE_CONFIG=configs/resources/sample-resource.yml OPERATION_CONFIG=configs/operations/sample-operation.yml npm start
+RESOURCE_CONFIG=configs/resources/sample-resource.yml \
+OPERATION_CONFIG=configs/operations/sample-operation.yml \
+npm run dev
 ```
+
+**Note**: You should run `npm run start` instead in production to run prettier / eslint / jest before starting the service.
 
 When you run the above command, the following takes place:
 
 1. The app starts a `Service` instance based on the specified configurations.
 1. Retrieves the [GitHub Context](https://probot.github.io/api/latest/classes/context.Context.html) (or any other defined context) for all the resources listed in the resource config file.
 1. Registers and listens for events, executes the `Tasks` defined in the operation config. These tasks will be executed sequentially when the corresponding events occur.
+
+
+#### List of Parameters:
+| Name                        | Type    | Default   | Description                                                                                                                                                        | Example                                   |
+|-----------------------------|---------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| RESOURCE_CONFIG             | String  | ''        | Path to resource config yaml file.                                                                                                                                 | 'configs/resources/sample-resource.yml'   |
+| OPERATION_CONFIG            | String  | ''        | Path to operation config yaml file.                                                                                                                                | 'configs/operations/sample-operation.yml' |
+| ADDITIONAL_RESOURCE_CONTEXT | Boolean | false     | Setting true will let each resource defined in RESOURCE_CONFIG to call GitHub Rest API and GraphQL for more detailed context (ex: node_id). Increase startup time. | true / false                              |
+| SERVICE_NAME                | String  | 'default' | Set Service Name                                                                                                                                                   | 'My Service'                              |'
 
 ## Code of Conduct
 

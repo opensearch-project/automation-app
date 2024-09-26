@@ -13,13 +13,17 @@
 //  - events     : The list of events to monitor and index, from https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows.
 
 import { Probot } from 'probot';
+import { Resource } from '../service/resource/resource';
 import { OpensearchClient } from '../utility/opensearch/opensearch-client';
+import { verifyOrgRepo } from '../utility/verification/verify-resource';
 
 interface WorkflowRunMonitorArgs {
   events: string[];
 }
 
-export default async function githubWorkflowRunsMonitor(app: Probot, context: any, { events }: WorkflowRunMonitorArgs): Promise<void> {
+export default async function githubWorkflowRunsMonitor(app: Probot, context: any, resource: Resource, { events }: WorkflowRunMonitorArgs): Promise<void> {
+  if (!(await verifyOrgRepo(app, context, resource))) return;
+
   const job = context.payload.workflow_run;
 
   if (!events.includes(job?.event)) {

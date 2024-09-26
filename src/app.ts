@@ -10,18 +10,27 @@
 import { Probot } from 'probot';
 import { Service } from './service/service';
 
-// TODO: Move Probot to the workflow folder and make it server
 export default async (app: Probot) => {
   app.log.info('OpenSearch Automation App is starting now......');
 
-  const srvObj = new Service('Hello World Service');
-  const resourceConfig: string = process.env.RESOURCE_CONFIG || 'configs/resources/sample-resource.yml';
-  const processConfig: string = process.env.OPERATION_CONFIG || 'configs/operations/sample-operation.yml';
+  // Env Vars
+  const resourceConfig: string = process.env.RESOURCE_CONFIG || '';
+  const processConfig: string = process.env.OPERATION_CONFIG || '';
+  const additionalResourceContext: boolean = Boolean(process.env.ADDITIONAL_RESOURCE_CONTEXT) || false;
+  const serviceName: string = process.env.SERVICE_NAME || 'default';
+
+  // Start service
+  const srvObj = new Service(serviceName);
 
   if (resourceConfig === '' || processConfig === '') {
-    throw new Error(`Invalid config path: RESOURCE_CONFIG=${resourceConfig} or OPERATION_CONFIG=${processConfig}`);
+    throw new Error(`Empty config path: RESOURCE_CONFIG='${resourceConfig}' or OPERATION_CONFIG='${processConfig}'`);
   }
-  await srvObj.initService(app, resourceConfig, processConfig);
+
+  if (additionalResourceContext) {
+    app.log.info('Start requesting additional resource context now, take a while......');
+  }
+
+  await srvObj.initService(app, resourceConfig, processConfig, additionalResourceContext);
 
   app.log.info('All objects initialized, start listening events......');
 };
