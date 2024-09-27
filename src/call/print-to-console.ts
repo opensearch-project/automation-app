@@ -25,6 +25,7 @@ export default async function printToConsole(app: Probot, context: any, resource
   app.log.info(text);
 }
 
-export async function printToConsoleHelloWorld(app: Probot): Promise<void> {
-  app.log.info('Hello World!');
+export async function printToConsoleHelloWorld(app: Probot, context: any, resource: Resource): Promise<void> {
+  if (!(await verifyOrgRepo(app, context, resource))) return;
+  app.log.info('Hello World');
 }

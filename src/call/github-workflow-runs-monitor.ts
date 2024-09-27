@@ -22,7 +22,7 @@ interface WorkflowRunMonitorArgs {
 }
 
 export default async function githubWorkflowRunsMonitor(app: Probot, context: any, resource: Resource, { events }: WorkflowRunMonitorArgs): Promise<void> {
-  if (!(await verifyOrgRepo(app, context, resource)) && !(await verifyOrgRepo(app, context, resource, true))) return;
+  if (!(await verifyOrgRepo(app, context, resource))) return;
 
   const job = context.payload.workflow_run;
 

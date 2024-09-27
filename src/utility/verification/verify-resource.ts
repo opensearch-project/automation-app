@@ -10,8 +10,8 @@
 import { Probot } from 'probot';
 import { Resource } from '../../service/resource/resource';
 
-export async function verifyOrgRepo(app: Probot, context: any, resource: Resource, repoOwner: boolean = false): Promise<boolean> {
-  const contextOrgName = repoOwner ? context.payload.repository?.owner?.login : context.payload.organization?.login;
+export async function verifyOrgRepo(app: Probot, context: any, resource: Resource): Promise<boolean> {
+  const contextOrgName = context.payload.organization?.login || context.payload.repository?.owner?.login;
   const contextRepoName = context.payload.repository?.name;
 
   const org = resource.organizations.get(contextOrgName);
