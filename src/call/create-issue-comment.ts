@@ -20,17 +20,10 @@ import { verifyOrgRepo } from '../utility/verification/verify-resource';
 
 export interface CreateIssueCommentParams {
   text: string;
-  tagUser?: string;
 }
 
 export default async function createIssueComment(app: Probot, context: any, resource: Resource, { text }: CreateIssueCommentParams): Promise<void> {
   if (!(await verifyOrgRepo(app, context, resource))) return;
-  const comment = context.issue({ body: dedent`${text}` });
-  context.octokit.issues.createComment(comment);
-}
-
-export async function createIssueCommentTagUser(app: Probot, context: any, resource: Resource, { text, tagUser }: CreateIssueCommentParams): Promise<void> {
-  if (!(await verifyOrgRepo(app, context, resource))) return;
-  const comment = context.issue({ body: dedent`@${tagUser}: ${text}` });
-  context.octokit.issues.createComment(comment);
+  const comment = await context.issue({ body: dedent`${text}` });
+  await context.octokit.issues.createComment(comment);
 }

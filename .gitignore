@@ -1,6 +1,7 @@
 node_modules
 npm-debug.log
 *.pem
+.swp*
 !mock-cert.pem
 .env*
 coverage

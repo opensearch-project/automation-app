@@ -7,16 +7,21 @@
  * compatible open source license.
  */
 
-import printToConsole, { PrintToConsoleParams, printToConsoleHelloWorld } from '../../src/call/print-to-console';
+import createIssueComment, { CreateIssueCommentParams } from '../../src/call/create-issue-comment';
 import { Probot, Logger } from 'probot';
 
-describe('printToConsoleFunctions', () => {
+describe('createIssueCommentFunctions', () => {
   let app: Probot;
   let context: any;
   let resource: any;
-  let args: PrintToConsoleParams;
+  let args: CreateIssueCommentParams;
+  let text: string;
 
   beforeEach(() => {
+    text = 'is writing a comment in issue';
+    args = {
+      text: `${text}`,
+    };
     app = new Probot({ appId: 1, secret: 'test', privateKey: 'test' });
     app.log = {
       info: jest.fn(),
@@ -36,6 +41,22 @@ describe('printToConsoleFunctions', () => {
         info: jest.fn(),
         error: jest.fn(),
       },
+      issue: jest.fn().mockResolvedValue({
+        body: `${args.text}`,
+      }),
+      octokit: {
+        issues: {
+          createComment: jest.fn().mockResolvedValue({
+            data: {
+              id: 1,
+              user: {
+                login: 'TestUser333',
+              },
+              body: `${text}`,
+            },
+          }),
+        },
+      },
     };
     resource = {
       organizations: new Map([
@@ -47,22 +68,14 @@ describe('printToConsoleFunctions', () => {
         ],
       ]),
     };
-    args = {
-      text: 'test message 123',
-    };
   });
 
-  describe('printToConsole', () => {
-    it('should print defined text in task', async () => {
-      await printToConsole(app, context, resource, args);
-      expect(app.log.info).toHaveBeenCalledWith('test message 123');
-    });
-  });
-
-  describe('printToConsoleHelloWorld', () => {
-    it('should print Hello World in task', async () => {
-      await printToConsoleHelloWorld(app, context, resource);
-      expect(app.log.info).toHaveBeenCalledWith('Hello World');
+  describe('createIssueComment', () => {
+    it('should write comments based on user defined text', async () => {
+      await createIssueComment(app, context, resource, args);
+      expect(context.octokit.issues.createComment).toHaveBeenCalledWith({
+        body: `${text}`,
+      });
     });
   });
 });
