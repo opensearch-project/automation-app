@@ -35,11 +35,16 @@ To create a service, you need two configuration files:
 
 ### Start the Service
 
-Once you have created the resource and operation configuration files, follow these steps to start the service:
+Before starting the service, create a `.env` file to connect it to your GitHub App by copying the `.env.example` file from this repository to `.env`.
+
+Once you have created the `.env` file, resource / operation configuration files, follow these steps to start the service:
 
 1. Set the `RESOURCE_CONFIG` environment variable to the path of the resource configuration YAML file.
 1. Set the `OPERATION_CONFIG` environment variable to the path of the operation configuration YAML file.
-1. Run the service using the following command:
+1. Update the `INSTALLATION_ID` variable in `.env` file. ([How to find installation id of your GitHub App](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation#using-octokitjs-to-authenticate-with-an-installation-id))
+1. Update your GitHub App settings on the GitHub website by defining the app's permissions and specifying the events to monitor.
+1. Run the service using the following command.
+1. (First Time Only) If you have created a new `.env` file, you will be directed to `http://localhost:3000` as seen in the console message. Open this URL in your browser and follow the instructions to set up the necessary information.
 
 ```bash
 RESOURCE_CONFIG=configs/resources/sample-resource.yml \
@@ -56,11 +61,12 @@ When you run the above command, the following takes place:
 1. Registers and listens for events, executes the `Tasks` defined in the operation config. These tasks will be executed sequentially when the corresponding events occur.
 
 
-#### List of Parameters:
+#### List of Environment Variables (You can use them directly in the startup command, export them, or add them to the `.env` file):
 | Name                        | Type    | Default   | Description                                                                                                                                                        | Example                                   |
 |-----------------------------|---------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
 | RESOURCE_CONFIG             | String  | ''        | Path to resource config yaml file.                                                                                                                                 | 'configs/resources/sample-resource.yml'   |
 | OPERATION_CONFIG            | String  | ''        | Path to operation config yaml file.                                                                                                                                | 'configs/operations/sample-operation.yml' |
+| INSTALLATION_ID             | String  | ''        | Installation Id of your GitHub App, must install the App to repositories before retrieving the id.                                                                 | '1234567890'                              |
 | ADDITIONAL_RESOURCE_CONTEXT | Boolean | false     | Setting true will let each resource defined in RESOURCE_CONFIG to call GitHub Rest API and GraphQL for more detailed context (ex: node_id). Increase startup time. | true / false                              |
 | SERVICE_NAME                | String  | 'default' | Set Service Name                                                                                                                                                   | 'My Service'                              |'
 
