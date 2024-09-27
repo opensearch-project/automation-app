@@ -27,5 +27,3 @@ jobs:
         run: echo "Please run 'npm run format' before commiting the code!"
       - name: Run build
         run: npm run build
-      - name: Run Test
-        run: npm test

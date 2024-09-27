@@ -22,7 +22,7 @@
     "format": "prettier --write src/**/*.ts test/**/*.ts configs/**/*.yml",
     "format-dryrun": "prettier --check src/**/*.ts test/**/*.ts configs/**/*.yml",
     "lint": "eslint --fix \"src/**/*.ts\" --ignore-pattern \"**/*.d.ts\"",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-opensearch": "^3.658.1",
