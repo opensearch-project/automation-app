@@ -27,3 +27,7 @@ jobs:
         run: echo "Please run 'npm run format' before commiting the code!"
       - name: Run build
         run: npm run build
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
