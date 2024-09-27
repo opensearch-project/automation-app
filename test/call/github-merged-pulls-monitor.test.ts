@@ -16,6 +16,7 @@ jest.mock('../../src/utility/opensearch/opensearch-client');
 describe('githubMergedPullsMonitor', () => {
   let app: Probot;
   let context: any;
+  let resource: any;
 
   beforeEach(() => {
     app = new Probot({ appId: 1, secret: 'test', privateKey: 'test' });
@@ -69,17 +70,27 @@ describe('githubMergedPullsMonitor', () => {
         error: jest.fn(),
       },
     };
+    resource = {
+      organizations: new Map([
+        [
+          'org',
+          {
+            repositories: new Map([['repo', 'repo object']]),
+          },
+        ],
+      ]),
+    };
   });
 
   it('should skip processing if the pull request is not merged', async () => {
     context.payload.pull_request.merged = false;
-    await githubMergedPullsMonitor(app, context);
+    await githubMergedPullsMonitor(app, context, resource);
     expect(app.log.info).toHaveBeenCalledWith('PR is closed but not merged. Skipping...');
   });
 
   it('should index merged pull request check runs', async () => {
     const mockBulkIndex = jest.spyOn(OpensearchClient.prototype, 'bulkIndex').mockResolvedValue();
-    await githubMergedPullsMonitor(app, context);
+    await githubMergedPullsMonitor(app, context, resource);
     expect(context.octokit.checks.listForRef).toHaveBeenCalledWith({
       owner: 'org',
       repo: 'repo',
@@ -103,7 +114,7 @@ describe('githubMergedPullsMonitor', () => {
 
   it('should log an error if bulk indexing fails', async () => {
     jest.spyOn(OpensearchClient.prototype, 'bulkIndex').mockRejectedValue(new Error('Indexing failed'));
-    await githubMergedPullsMonitor(app, context);
+    await githubMergedPullsMonitor(app, context, resource);
     expect(app.log.error).toHaveBeenCalledWith('Error indexing log data: Error: Indexing failed');
   });
 });

@@ -16,7 +16,7 @@ import { OpensearchClient } from '../utility/opensearch/opensearch-client';
 import { verifyOrgRepo } from '../utility/verification/verify-resource';
 
 export default async function githubMergedPullsMonitor(app: Probot, context: any, resource: Resource): Promise<void> {
-  if (!(await verifyOrgRepo(app, context, resource))) return;
+  if (!(await verifyOrgRepo(app, context, resource, true))) return;
 
   const pr = context.payload.pull_request;
 
