@@ -51,6 +51,10 @@ When you run the above command, the following takes place:
 1. Retrieves the [GitHub Context](https://probot.github.io/api/latest/classes/context.Context.html) (or any other defined context) for all the resources listed in the resource config file.
 1. Registers and listens for events, executes the `Tasks` defined in the operation config. These tasks will be executed sequentially when the corresponding events occur.
 
+#### Start the Service with Docker
+
+For detailed instructions on starting the service with Docker, refer to the project's [Docker Setup](./docker/README.md).
+
 ## Code of Conduct
 
 This project has adopted [the Open Source Code of Conduct](CODE_OF_CONDUCT.md).
