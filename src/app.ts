@@ -14,8 +14,8 @@ export default async (app: Probot) => {
   app.log.info('OpenSearch Automation App is starting now......');
 
   // Env Vars
-  const resourceConfig: string = process.env.RESOURCE_CONFIG || '';
-  const processConfig: string = process.env.OPERATION_CONFIG || '';
+  const resourceConfig: string = String(process.env.RESOURCE_CONFIG) || '';
+  const processConfig: string = String(process.env.OPERATION_CONFIG) || '';
   const additionalResourceContext: boolean = Boolean(process.env.ADDITIONAL_RESOURCE_CONTEXT) || false;
   const serviceName: string = process.env.SERVICE_NAME || 'default';
 

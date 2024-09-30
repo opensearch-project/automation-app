@@ -13,7 +13,7 @@ import { OpensearchClient } from '../../../src/utility/opensearch/opensearch-cli
 
 jest.mock('@aws-sdk/client-sts');
 jest.mock('@opensearch-project/opensearch');
-jest.mock('@opensearch-project/opensearch/lib/aws/index', () => ({
+jest.mock('@opensearch-project/opensearch/aws-v3', () => ({
   AwsSigv4Signer: jest.fn().mockReturnValue({}),
 }));
 

@@ -1,3 +1,5 @@
+[![](https://img.shields.io/codecov/c/gh/opensearch-project/automation-app)](https://app.codecov.io/gh/opensearch-project/automation-app)
+
 <img src="https://opensearch.org/assets/img/opensearch-logo-themed.svg" height="64px">
 
 - [Welcome!](#welcome)
@@ -60,7 +62,6 @@ When you run the above command, the following takes place:
 1. Retrieves the [GitHub Context](https://probot.github.io/api/latest/classes/context.Context.html) (or any other defined context) for all the resources listed in the resource config file.
 1. Registers and listens for events, executes the `Tasks` defined in the operation config. These tasks will be executed sequentially when the corresponding events occur.
 
-
 #### List of Environment Variables (You can use them directly in the startup command, export them, or add them to the `.env` file):
 | Name                        | Type    | Default   | Description                                                                                                                                                        | Example                                   |
 |-----------------------------|---------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
@@ -69,6 +70,10 @@ When you run the above command, the following takes place:
 | INSTALLATION_ID             | String  | ''        | Installation Id of your GitHub App, must install the App to repositories before retrieving the id.                                                                 | '1234567890'                              |
 | ADDITIONAL_RESOURCE_CONTEXT | Boolean | false     | Setting true will let each resource defined in RESOURCE_CONFIG to call GitHub Rest API and GraphQL for more detailed context (ex: node_id). Increase startup time. | true / false                              |
 | SERVICE_NAME                | String  | 'default' | Set Service Name                                                                                                                                                   | 'My Service'                              |'
+
+#### Start the Service with Docker
+
+For detailed instructions on starting the service with Docker, refer to the project's [Docker Setup](./docker/README.md).
 
 ## Code of Conduct
 

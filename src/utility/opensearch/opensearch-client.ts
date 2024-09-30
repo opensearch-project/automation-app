@@ -9,7 +9,9 @@
 
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { ApiResponse, Client as OpenSearchClient } from '@opensearch-project/opensearch';
-import { AwsSigv4Signer } from '@opensearch-project/opensearch/lib/aws/index';
+// coming from https://github.com/opensearch-project/opensearch-js/issues/410#issuecomment-2378736883
+// eslint-disable-next-line import/no-unresolved
+import { AwsSigv4Signer } from '@opensearch-project/opensearch/aws-v3';
 
 export class OpensearchClient {
   private readonly _roleArn = process.env.ROLE_ARN;
