@@ -13,15 +13,15 @@ import { ProjectField } from './project-field';
 import { Issue } from './issue';
 
 export class Project extends Entity {
-  private projectNumber: number; // uid
+  private readonly _projectNumber: number; // uid
 
-  private fields: Map<string, ProjectField>;
+  private _fields: Map<string, ProjectField>;
 
-  private issues: Map<number, Issue>;
+  private _issues: Map<number, Issue>;
 
   constructor(orgName: string, projNumber: number) {
     super(orgName);
-    this.projectNumber = projNumber;
+    this._projectNumber = projNumber;
   }
 
   public async setContext(octokit: ProbotOctokit): Promise<void> {
@@ -39,33 +39,33 @@ export class Project extends Entity {
          }
       `;
 
-      this.context = await octokit.graphql(projQuery);
+      this._context = await octokit.graphql(projQuery);
       console.log(`Set project context: ${this.orgName}/project/${this.projectNumber}`);
-      this.nodeId = this.context.organization.projectV2.id;
+      this._nodeId = this.context.organization.projectV2.id;
     } catch (e) {
       console.error(`ERROR: ${e}`);
     }
   }
 
   public addField(field: ProjectField): void {
-    this.fields = this.fields || new Map<string, ProjectField>();
-    this.fields.set(field.getFieldName(), field);
+    this._fields = this._fields || new Map<string, ProjectField>();
+    this._fields.set(field.fieldName, field);
   }
 
   public addIssue(issue: Issue): void {
-    this.issues = this.issues || new Map<number, Issue>();
-    this.issues.set(issue.getIssueNumber(), issue);
+    this._issues = this._issues || new Map<number, Issue>();
+    this._issues.set(issue.issueNumber, issue);
   }
 
-  public getProjectNumber(): number {
-    return this.projectNumber;
+  public get projectNumber(): number {
+    return this._projectNumber;
   }
 
-  public getFields(): Map<string, ProjectField> {
-    return this.fields;
+  public get fields(): Map<string, ProjectField> {
+    return this._fields;
   }
 
-  public getIssues(): Map<number, Issue> {
-    return this.issues;
+  public get issues(): Map<number, Issue> {
+    return this._issues;
   }
 }

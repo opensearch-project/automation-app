@@ -10,5 +10,8 @@
 import { Probot, ProbotOctokit } from 'probot';
 
 export async function octokitAuth(app: Probot, installationId: number): Promise<ProbotOctokit> {
+  if (!installationId) {
+    throw new Error('Please provide installation id of your github app!');
+  }
   return app.auth(installationId);
 }

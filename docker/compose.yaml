@@ -13,7 +13,7 @@ services:
       - RESOURCE_CONFIG=${RESOURCE_CONFIG}
       - OPERATION_CONFIG=${OPERATION_CONFIG}
     volumes:
-      - ../:/usr/src/app
-      - /usr/src/app/node_modules
+      - ../:/usr/share/app
+      - /usr/share/app/node_modules
     ports:
       - '${PORT}:3000'

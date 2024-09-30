@@ -16,6 +16,7 @@ jest.mock('../../src/utility/opensearch/opensearch-client');
 describe('githubWorkflowRunsMonitor', () => {
   let app: Probot;
   let context: any;
+  let resource: any;
 
   beforeEach(() => {
     app = new Probot({ appId: 1, secret: 'test', privateKey: 'test' });
@@ -57,13 +58,23 @@ describe('githubWorkflowRunsMonitor', () => {
         },
       },
     };
+    resource = {
+      organizations: new Map([
+        [
+          'org',
+          {
+            repositories: new Map([['repo', 'repo object']]),
+          },
+        ],
+      ]),
+    };
   });
 
   it('should skip indexing when the event is not relevant', async () => {
     const events = ['pull_request', 'release'];
     context.payload.workflow_run.event = 'push'; // Setting an event that is not in the list
 
-    await githubWorkflowRunsMonitor(app, context, { events });
+    await githubWorkflowRunsMonitor(app, context, resource, { events });
 
     expect(app.log.info).toHaveBeenCalledWith('Event not relevant. Not Indexing...');
   });
@@ -77,7 +88,7 @@ describe('githubWorkflowRunsMonitor', () => {
     (OpensearchClient as jest.Mock).mockImplementation(() => {
       return { getClient: jest.fn().mockResolvedValue(mockClient) };
     });
-    await githubWorkflowRunsMonitor(app, context, { events });
+    await githubWorkflowRunsMonitor(app, context, resource, { events });
     expect(mockClient.index).toHaveBeenCalledWith({
       index: expect.stringMatching(/^github-ci-workflow-runs-\d{2}-\d{4}$/),
       body: expect.objectContaining({
@@ -104,7 +115,7 @@ describe('githubWorkflowRunsMonitor', () => {
     (OpensearchClient as jest.Mock).mockImplementation(() => {
       return { getClient: jest.fn().mockResolvedValue(mockClient) };
     });
-    await githubWorkflowRunsMonitor(app, context, { events });
+    await githubWorkflowRunsMonitor(app, context, resource, { events });
     expect(app.log.error).toHaveBeenCalledWith('Error indexing log data: Error: Indexing failed');
   });
 });

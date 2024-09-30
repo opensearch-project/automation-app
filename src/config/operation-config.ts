@@ -13,7 +13,7 @@ import { OperationData, TaskData } from './types';
 import { Config } from './config';
 
 export class OperationConfig extends Config {
-  private static configSchema = {
+  private static readonly _configSchema = {
     type: 'object',
     properties: {
       name: {
@@ -62,15 +62,14 @@ export class OperationConfig extends Config {
 
   constructor(configPath: string) {
     super('OperationConfig');
-    this.configData = OperationConfig.readConfig(configPath);
-    this.configSchema = OperationConfig.configSchema;
-    OperationConfig.validateConfig(this.configData, this.configSchema);
+    this._configData = OperationConfig.readConfig(configPath);
+    OperationConfig.validateConfig(this.configData, OperationConfig._configSchema);
   }
 
   private static async _initTasks(taskDataArray: TaskData[]): Promise<Task[]> {
     const taskObjArray = taskDataArray.map((taskData) => {
       const taskObj = new Task(taskData.call, taskData.args, taskData.name);
-      console.log(`Setup Task: ${taskObj.getName()}`);
+      console.log(`Setup Task: ${taskObj.name}`);
       return taskObj;
     });
     return taskObjArray;
@@ -82,7 +81,7 @@ export class OperationConfig extends Config {
       (this.configData as OperationData).events,
       await OperationConfig._initTasks((this.configData as OperationData).tasks),
     );
-    console.log(`Setup Operation: ${opObj.getName()}`);
+    console.log(`Setup Operation: ${opObj.name}`);
     return opObj;
   }
 }

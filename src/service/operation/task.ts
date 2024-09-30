@@ -11,35 +11,35 @@ import randomstring from 'randomstring';
 import { TaskArgData } from '../../config/types';
 
 export class Task {
-  private name: string; // uid
+  private readonly _name: string; // uid
 
-  private callName: string;
+  private readonly _callName: string;
 
-  private callFunc: string = 'default';
+  private readonly _callFunc: string = 'default';
 
-  private callArgs: TaskArgData;
+  private readonly _callArgs: TaskArgData;
 
-  constructor(call: string, callArgs: TaskArgData, name?: string) {
+  constructor(call: string, callArgs: TaskArgData = {}, name?: string) {
     const callArray = call.trim().split('@');
-    [this.callName, this.callFunc] = callArray;
-    this.callArgs = callArgs;
+    [this._callName, this._callFunc] = callArray;
+    this._callArgs = callArgs;
     const namePostfix = randomstring.generate(8);
-    this.name = name ? `${name}#${namePostfix}` : `${this.callName}#${namePostfix}`;
+    this._name = name ? `${name}#${namePostfix}` : `${this.callName}#${namePostfix}`;
   }
 
-  public getName(): string {
-    return this.name;
+  public get name(): string {
+    return this._name;
   }
 
-  public getCallName(): string {
-    return this.callName;
+  public get callName(): string {
+    return this._callName;
   }
 
-  public getCallFunc(): string {
-    return this.callFunc;
+  public get callFunc(): string {
+    return this._callFunc;
   }
 
-  public getCallArgs(): TaskArgData {
-    return this.callArgs;
+  public get callArgs(): TaskArgData {
+    return this._callArgs;
   }
 }

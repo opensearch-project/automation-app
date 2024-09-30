@@ -14,14 +14,16 @@ import { readFileSync, realpathSync } from 'fs';
 import { ResourceData, OperationData } from './types';
 
 export abstract class Config {
-  protected configType: string;
+  protected _configType: string;
 
-  protected configData: ResourceData | OperationData;
-
-  protected configSchema: any;
+  protected _configData: ResourceData | OperationData;
 
   constructor(configType: string) {
-    this.configType = configType;
+    this._configType = configType;
+  }
+
+  protected get configData(): ResourceData | OperationData {
+    return this._configData;
   }
 
   protected static readConfig(filePath: string): any {

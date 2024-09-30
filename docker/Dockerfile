@@ -1,4 +1,4 @@
 FROM node:20
-WORKDIR /usr/src/app
+WORKDIR /usr/share/app
 COPY ../ .
 RUN npm cache clean --force

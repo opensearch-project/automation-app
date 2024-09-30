@@ -10,27 +10,27 @@
 import { Task } from './task';
 
 export class Operation {
-  private name: string; // uid
+  private readonly _name: string; // uid
 
-  private events: string[];
+  private readonly _events: string[];
 
-  private tasks: Task[];
+  private readonly _tasks: Task[];
 
   constructor(name: string, events: string[], tasks: Task[]) {
-    this.name = name;
-    this.events = events;
-    this.tasks = tasks;
+    this._name = name;
+    this._events = events;
+    this._tasks = tasks;
   }
 
-  public getName(): string {
-    return this.name;
+  public get name(): string {
+    return this._name;
   }
 
-  public getEvents(): string[] {
-    return this.events;
+  public get events(): string[] {
+    return this._events;
   }
 
-  public getTasks(): Task[] {
-    return this.tasks;
+  public get tasks(): Task[] {
+    return this._tasks;
   }
 }
