@@ -7,7 +7,7 @@
  * compatible open source license.
  */
 
-import { verifyOrgRepo } from '../../../src/utility/verification/verify-resource';
+import { validateResourceConfig } from '../../../src/utility/verification/verify-resource';
 import { Probot, Logger } from 'probot';
 
 describe('verifyResourceFunctions', () => {
@@ -36,9 +36,9 @@ describe('verifyResourceFunctions', () => {
     };
   });
 
-  describe('verifyOrgRepo', () => {
+  describe('validateResourceConfig', () => {
     it('should fail if no org or repo data in payload', async () => {
-      const result = await verifyOrgRepo(app, context, resource);
+      const result = await validateResourceConfig(app, context, resource);
       expect(app.log.error).toHaveBeenCalledWith('undefined/undefined is not defined in resource config!');
       expect(result).toBe(false);
     });
@@ -49,7 +49,7 @@ describe('verifyResourceFunctions', () => {
           login: 'org',
         },
       };
-      const result = await verifyOrgRepo(app, context, resource);
+      const result = await validateResourceConfig(app, context, resource);
       expect(app.log.error).toHaveBeenCalledWith('org/undefined is not defined in resource config!');
       expect(result).toBe(false);
     });
@@ -62,7 +62,7 @@ describe('verifyResourceFunctions', () => {
           },
         },
       };
-      const result = await verifyOrgRepo(app, context, resource);
+      const result = await validateResourceConfig(app, context, resource);
       expect(app.log.error).toHaveBeenCalledWith('org/undefined is not defined in resource config!');
       expect(result).toBe(false);
     });
@@ -73,7 +73,7 @@ describe('verifyResourceFunctions', () => {
           name: 'repo',
         },
       };
-      const result = await verifyOrgRepo(app, context, resource);
+      const result = await validateResourceConfig(app, context, resource);
       expect(app.log.error).toHaveBeenCalledWith('undefined/repo is not defined in resource config!');
       expect(result).toBe(false);
     });
@@ -87,7 +87,7 @@ describe('verifyResourceFunctions', () => {
           name: 'repo',
         },
       };
-      const result = await verifyOrgRepo(app, context, resource);
+      const result = await validateResourceConfig(app, context, resource);
       expect(result).toBe(true);
     });
 
@@ -100,7 +100,7 @@ describe('verifyResourceFunctions', () => {
           name: 'repo',
         },
       };
-      const result = await verifyOrgRepo(app, context, resource);
+      const result = await validateResourceConfig(app, context, resource);
       expect(result).toBe(true);
     });
   });

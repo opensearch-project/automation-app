@@ -15,14 +15,14 @@
 import { Probot } from 'probot';
 import { Resource } from '../service/resource/resource';
 import { OpensearchClient } from '../utility/opensearch/opensearch-client';
-import { verifyOrgRepo } from '../utility/verification/verify-resource';
+import { validateResourceConfig } from '../utility/verification/verify-resource';
 
 interface WorkflowRunMonitorArgs {
   events: string[];
 }
 
 export default async function githubWorkflowRunsMonitor(app: Probot, context: any, resource: Resource, { events }: WorkflowRunMonitorArgs): Promise<void> {
-  if (!(await verifyOrgRepo(app, context, resource))) return;
+  if (!(await validateResourceConfig(app, context, resource))) return;
 
   const job = context.payload.workflow_run;
 

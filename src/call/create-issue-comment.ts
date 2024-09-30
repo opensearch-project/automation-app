@@ -16,14 +16,14 @@
 import { Probot } from 'probot';
 import dedent from 'dedent';
 import { Resource } from '../service/resource/resource';
-import { verifyOrgRepo } from '../utility/verification/verify-resource';
+import { validateResourceConfig } from '../utility/verification/verify-resource';
 
 export interface CreateIssueCommentParams {
   text: string;
 }
 
 export default async function createIssueComment(app: Probot, context: any, resource: Resource, { text }: CreateIssueCommentParams): Promise<void> {
-  if (!(await verifyOrgRepo(app, context, resource))) return;
+  if (!(await validateResourceConfig(app, context, resource))) return;
   const comment = await context.issue({ body: dedent`${text}` });
   await context.octokit.issues.createComment(comment);
 }
