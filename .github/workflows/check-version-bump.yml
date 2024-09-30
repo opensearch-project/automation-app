@@ -8,6 +8,7 @@ jobs:
   check-version-bump:
     runs-on: ubuntu-latest
     steps:
+      - users: actions/checkout@v4
       - name: Check if version has been updated
         id: check
         uses: EndBug/version-check@v2
