@@ -13,14 +13,16 @@
     "automation-app"
   ],
   "scripts": {
-    "build": "npm run clean && npm run format && npm run lint && npm run compile",
+    "build": "npm run format-dryrun && npm run clean && npm run lint && npm run compile",
+    "postbuild": "npm run test",
     "compile": "tsc",
+    "dev": "npm run clean && npm run compile && probot run ./bin/app.js",
     "start": "npm run build && probot run ./bin/app.js",
     "clean": "rm -rf ./bin/*",
-    "format": "prettier --write \"src/**/*.{js,ts}\" \"test/**/*.ts\" \"configs/**/*.{yaml,yml}\"",
-    "format-dryrun": "prettier --check \"src/**/*.{js,ts}\" \"test/**/*.ts\" \"configs/**/*.{yaml,yml}\"",
+    "format": "prettier --write src/**/*.ts test/**/*.ts configs/**/*.yml",
+    "format-dryrun": "prettier --check src/**/*.ts test/**/*.ts configs/**/*.yml",
     "lint": "eslint --fix \"src/**/*.ts\" --ignore-pattern \"**/*.d.ts\"",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-opensearch": "^3.658.1",

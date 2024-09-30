@@ -10,28 +10,27 @@
 import { ProbotOctokit } from 'probot';
 
 export abstract class Entity {
-  protected orgName: string;
+  protected readonly _orgName: string;
 
-  protected nodeId: string;
+  protected _nodeId: string;
 
-  protected context: any;
+  protected _context: any;
 
   constructor(orgName: string) {
-    this.orgName = orgName;
+    this._orgName = orgName;
   }
 
-  public getOrgName(): string {
-    return this.orgName;
+  public get orgName(): string {
+    return this._orgName;
   }
 
-  public getNodeId(): string {
-    return this.nodeId;
+  public get nodeId(): string {
+    return this._nodeId;
   }
 
-  public getContext(): any {
-    return this.context;
+  public get context(): any {
+    return this._context;
   }
 
-  // TODO: Pass func as argument to parent so octokit just declair once
   public abstract setContext(octokit: ProbotOctokit, ...params: string[]): void;
 }

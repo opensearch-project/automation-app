@@ -12,19 +12,19 @@ import { ApiResponse, Client as OpenSearchClient } from '@opensearch-project/ope
 import { AwsSigv4Signer } from '@opensearch-project/opensearch/lib/aws/index';
 
 export class OpensearchClient {
-  private readonly roleArn = process.env.ROLE_ARN;
+  private readonly _roleArn = process.env.ROLE_ARN;
 
-  private readonly region = String(process.env.REGION);
+  private readonly _region = String(process.env.REGION);
 
-  private readonly openSearchUrl = process.env.OPENSEARCH_URL;
+  private readonly _openSearchUrl = process.env.OPENSEARCH_URL;
 
   async getClient(): Promise<OpenSearchClient> {
     const stsClient = new STSClient({
-      region: this.region,
+      region: this._region,
     });
 
     const assumeRoleCommand = new AssumeRoleCommand({
-      RoleArn: this.roleArn,
+      RoleArn: this._roleArn,
       RoleSessionName: 'githubWorkflowRunsMonitorSession',
     });
 
@@ -37,15 +37,14 @@ export class OpensearchClient {
 
     const client = new OpenSearchClient({
       ...AwsSigv4Signer({
-        region: this.region,
-        getCredentials: () =>
-          Promise.resolve({
-            accessKeyId: credentials.AccessKeyId!,
-            secretAccessKey: credentials.SecretAccessKey!,
-            sessionToken: credentials.SessionToken!,
-          }),
+        region: this._region,
+        getCredentials: () => Promise.resolve({
+          accessKeyId: credentials.AccessKeyId!,
+          secretAccessKey: credentials.SecretAccessKey!,
+          sessionToken: credentials.SessionToken!,
+        }),
       }),
-      node: this.openSearchUrl,
+      node: this._openSearchUrl,
     });
 
     return client;

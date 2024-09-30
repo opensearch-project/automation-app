@@ -11,8 +11,9 @@ tasks:
   - name: Print a message to the console
     call: print-to-console@default
     args:
-      text: Hello World!
-  - call: create-issue-comment@createIssueCommentTagUser
+      text: This is a sample output message!
+  - name: Print Hello World to the console
+    call: print-to-console@printToConsoleHelloWorld
+  - call: create-issue-comment@default
     args:
       text: This comment is created by Hello World Operation
-      tagUser: peterzhuamazon

@@ -41,7 +41,7 @@ export interface OperationData {
 export interface TaskData {
   name?: string;
   call: string;
-  args: TaskArgData;
+  args?: TaskArgData;
 }
 
 export interface TaskArgData {

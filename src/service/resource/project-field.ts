@@ -11,16 +11,16 @@ import { ProbotOctokit } from 'probot';
 import { Entity } from './entity';
 
 export class ProjectField extends Entity {
-  private fieldName: string; // uid
+  private _fieldName: string; // uid
 
-  private fieldType: string;
+  private _fieldType: string;
 
-  private projectNumber: number;
+  private readonly _projectNumber: number;
 
   constructor(orgName: string, projNumber: number, fieldName: string) {
     super(orgName);
-    this.projectNumber = projNumber;
-    this.fieldName = fieldName;
+    this._projectNumber = projNumber;
+    this._fieldName = fieldName;
   }
 
   public async setContext(octokit: ProbotOctokit, projNodeId: string): Promise<void> {
@@ -73,26 +73,26 @@ export class ProjectField extends Entity {
       const fieldContext = allFieldContextArray.node.fields.nodes.find((field: Record<string, string>) => field.name === this.fieldName);
 
       if (!fieldContext) {
-        throw new Error(`${this.fieldName} not found! Please check organization ${this.orgName} project ${this.projectNumber} and verify that field exist.`);
+        throw new Error(`${this._fieldName} not found! Please check organization ${this.orgName} project ${this.projectNumber} and verify that field exist.`);
       }
 
-      this.nodeId = fieldContext.id;
-      this.fieldType = fieldContext.dataType;
-      this.context = fieldContext;
+      this._nodeId = fieldContext.id;
+      this._fieldType = fieldContext.dataType;
+      this._context = fieldContext;
     } catch (e) {
       console.error(`ERROR: ${e}`);
     }
   }
 
-  public getFieldName(): string {
-    return this.fieldName;
+  public get fieldName(): string {
+    return this._fieldName;
   }
 
-  public getProjectNumber(): number {
-    return this.projectNumber;
+  public get projectNumber(): number {
+    return this._projectNumber;
   }
 
-  public getFieldType(): string {
-    return this.fieldType;
+  public get fieldType(): string {
+    return this._fieldType;
   }
 }
