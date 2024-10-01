@@ -5,6 +5,7 @@ npm-debug.log
 !mock-cert.pem
 .env*
 coverage
+junit.xml
 bin
 temp/*
 

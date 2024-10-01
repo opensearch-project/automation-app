@@ -97,7 +97,7 @@ describe('githubMergedPullsMonitor', () => {
       ref: 'abcdef123456',
     });
     expect(mockBulkIndex).toHaveBeenCalledWith(
-      expect.stringMatching(/^github-pulls-ci-runs-checks-\d{2}-\d{4}$/),
+      expect.stringMatching(/^github-pulls-ci-workflow-runs-\d{2}-\d{4}$/),
       expect.arrayContaining([
         expect.objectContaining({
           number: 123,
