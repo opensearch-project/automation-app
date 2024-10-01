@@ -1,4 +1,5 @@
 [![](https://img.shields.io/codecov/c/gh/opensearch-project/automation-app)](https://app.codecov.io/gh/opensearch-project/automation-app)
+![](https://img.shields.io/github/package-json/v/opensearch-project/automation-app?filename=package.json)
 
 <img src="https://opensearch.org/assets/img/opensearch-logo-themed.svg" height="64px">
 
