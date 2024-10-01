@@ -72,7 +72,7 @@ export default async function githubMergedPullsMonitor(app: Probot, context: any
   const [month, year] = [new Date().getMonth() + 1, new Date().getFullYear()].map((num) => String(num).padStart(2, '0'));
 
   try {
-    await new OpensearchClient().bulkIndex(`github-pulls-ci-runs-checks-${month}-${year}`, logDataArray);
+    await new OpensearchClient().bulkIndex(`github-pulls-ci-workflow-runs-${month}-${year}`, logDataArray);
     app.log.info('All log data indexed successfully.');
   } catch (error) {
     app.log.error(`Error indexing log data: ${error}`);
