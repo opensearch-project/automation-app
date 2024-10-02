@@ -2,6 +2,8 @@ name: Release Automation App
 
 on:
   push:
+    branches:
+      - main
 
 permissions:
   contents: write
