@@ -1,0 +1,25 @@
+name: Release Automation App
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+jobs:
+  release-automation-app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Version
+        run: echo "app_version=$(jq -r .version package.json)" >> "$GITHUB_ENV"
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.app_version }}
+          name: ${{ env.app_version }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          make_latest: true
