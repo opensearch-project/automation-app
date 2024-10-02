@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   release-automation-app:
+    if: github.repository == 'opensearch-project/automation-app'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
