@@ -34,7 +34,7 @@ A `Service` is an instance of the app that manages and manipulates specific `Res
 To create a service, you need two configuration files:
 
 - **Resource configuration file**: Defines the resources that the service will manage or modify. [Sample Resource Config](configs/resources/sample-resource.yml).
-- **Operation configuration file**: Defines the operations (tasks) that the service will execute with the resources. [Sample Operation Config](configs/resources/sample-operation.yml).
+- **Operation configuration file**: Defines the operations (tasks) that the service will execute with the resources. [Sample Operation Config](configs/operations/sample-operation.yml).
 
 ### Start the Service
 
