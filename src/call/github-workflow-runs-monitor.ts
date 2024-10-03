@@ -16,18 +16,31 @@ import { Probot } from 'probot';
 import { Resource } from '../service/resource/resource';
 import { OpensearchClient } from '../utility/opensearch/opensearch-client';
 import { validateResourceConfig } from '../utility/verification/verify-resource';
+import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 
 interface WorkflowRunMonitorArgs {
   events: string[];
+  workflows: string[];
 }
 
-export default async function githubWorkflowRunsMonitor(app: Probot, context: any, resource: Resource, { events }: WorkflowRunMonitorArgs): Promise<void> {
+export default async function githubWorkflowRunsMonitor(
+  app: Probot,
+  context: any,
+  resource: Resource,
+  { events, workflows }: WorkflowRunMonitorArgs,
+): Promise<void> {
+  app.log.info(`workflowArgs: ${JSON.stringify(events)}`);
+  app.log.info(`workflowsToMonitor: ${JSON.stringify(workflows)}`);
   if (!(await validateResourceConfig(app, context, resource))) return;
 
   const job = context.payload.workflow_run;
 
   if (!events.includes(job?.event)) {
     app.log.info('Event not relevant. Not Indexing...');
+    return;
+  }
+  if (!workflows.includes(job?.name)) {
+    app.log.info('Workflow not relevant. Not Indexing...');
     return;
   }
 
@@ -58,9 +71,7 @@ export default async function githubWorkflowRunsMonitor(app: Probot, context: an
   };
 
   const client = await new OpensearchClient().getClient();
-
   const [month, year] = [new Date().getMonth() + 1, new Date().getFullYear()].map((num) => String(num).padStart(2, '0'));
-
   try {
     await client.index({
       index: `github-ci-workflow-runs-${month}-${year}`,
@@ -69,5 +80,36 @@ export default async function githubWorkflowRunsMonitor(app: Probot, context: an
     app.log.info('Log data indexed successfully.');
   } catch (error) {
     app.log.error(`Error indexing log data: ${error}`);
+  }
+
+  let count: any;
+  if (job?.status === 'completed' && job?.conclusion === 'success') {
+    count = 0;
+  }
+  if (job?.status === 'completed' && job?.conclusion === 'failure') {
+    count = 1;
+  }
+  try {
+    const cloudWatchClient = new CloudWatchClient({ region: String(process.env.REGION) });
+    const putMetricDataCommand = new PutMetricDataCommand({
+      Namespace: 'GitHubActions',
+      MetricData: [
+        {
+          MetricName: 'WorkflowRunFailures',
+          Dimensions: [
+            {
+              Name: 'Workflow',
+              Value: job?.name,
+            },
+          ],
+          Value: count,
+          Unit: 'Count',
+        },
+      ],
+    });
+    await cloudWatchClient.send(putMetricDataCommand);
+    app.log.info('CloudWatch metric for workflow failure published.');
+  } catch (error) {
+    app.log.error(`Error Publishing CloudWatch metric for workflow : ${error}`);
   }
 }
