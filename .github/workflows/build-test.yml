@@ -25,8 +25,10 @@ jobs:
       - name: Verify styling failure msg
         if: steps.style_verify.outcome == 'failure'
         run: echo "Please run 'npm run format' before commiting the code!"
-      - name: Run build
+      - name: Run build test
         run: npm run build
+      - name: Run junit
+        run: npm run junit
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v4
         with:
