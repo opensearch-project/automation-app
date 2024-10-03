@@ -16,7 +16,7 @@ This repository hosts the source code of an automation app to handle the daily a
 
 ## Project Resources
 
-The automation app utilizes the [Probot](https://probot.github.io/) framework and [Octokit](https://docs.github.com/en/rest/using-the-rest-api/libraries-for-the-rest-api?apiVersion=2022-11-28) library to perform user-defined operations on top of the resources within GitHub. See [configs](configs/operations/hello-world.yml) yaml for more information.
+The automation app utilizes the [Probot](https://probot.github.io/) framework and [Octokit](https://docs.github.com/en/rest/using-the-rest-api/libraries-for-the-rest-api?apiVersion=2022-11-28) library to perform user-defined operations on top of the resources within GitHub. See [configs](configs) yaml for more information.
 
 ## Usages
 
@@ -33,8 +33,8 @@ A `Service` is an instance of the app that manages and manipulates specific `Res
 
 To create a service, you need two configuration files:
 
-- **Resource configuration file**: Defines the resources that the service will manage or modify (`configs/resources/sample-resource.yml`).
-- **Operation configuration file**: Defines the operations (tasks) that the service will execute with the resources (`configs/resources/sample-operation.yml`).
+- **Resource configuration file**: Defines the resources that the service will manage or modify. [Sample Resource Config](configs/resources/sample-resource.yml).
+- **Operation configuration file**: Defines the operations (tasks) that the service will execute with the resources. [Sample Operation Config](configs/resources/sample-operation.yml).
 
 ### Start the Service
 
