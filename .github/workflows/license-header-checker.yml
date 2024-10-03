@@ -1,5 +1,5 @@
 ---
-name: License Header Checker
+name: license-header-checker
 
 on: [push, pull_request]
 
