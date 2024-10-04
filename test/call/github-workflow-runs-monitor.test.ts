@@ -10,13 +10,16 @@
 import githubWorkflowRunsMonitor from '../../src/call/github-workflow-runs-monitor';
 import { Probot, Logger } from 'probot';
 import { OpensearchClient } from '../../src/utility/opensearch/opensearch-client';
+import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 
 jest.mock('../../src/utility/opensearch/opensearch-client');
+jest.mock('@aws-sdk/client-cloudwatch');
 
 describe('githubWorkflowRunsMonitor', () => {
   let app: Probot;
   let context: any;
   let resource: any;
+  let mockCloudWatchClient: any;
 
   beforeEach(() => {
     app = new Probot({ appId: 1, secret: 'test', privateKey: 'test' });
@@ -30,11 +33,11 @@ describe('githubWorkflowRunsMonitor', () => {
         workflow_run: {
           event: 'push',
           id: 123,
-          name: 'Test Workflow',
+          name: 'Publish snapshots to maven',
           head_branch: 'main',
           head_sha: 'abcdef123456',
           path: '/path/to/workflow',
-          display_title: 'Test Workflow',
+          display_title: 'Publish snapshots to maven',
           created_at: '2023-09-25T12:00:00Z',
           run_started_at: '2023-09-26T12:00:00Z',
           updated_at: '2023-09-26T13:00:00Z',
@@ -68,19 +71,37 @@ describe('githubWorkflowRunsMonitor', () => {
         ],
       ]),
     };
+
+    mockCloudWatchClient = {
+      send: jest.fn(),
+    };
+    (CloudWatchClient as jest.Mock).mockImplementation(() => mockCloudWatchClient);
   });
 
   it('should skip indexing when the event is not relevant', async () => {
     const events = ['pull_request', 'release'];
-    context.payload.workflow_run.event = 'push'; // Setting an event that is not in the list
+    const workflows = ['Publish snapshots to maven'];
+    context.payload.workflow_run.event = 'push';
 
-    await githubWorkflowRunsMonitor(app, context, resource, { events });
+    await githubWorkflowRunsMonitor(app, context, resource, { events, workflows });
 
     expect(app.log.info).toHaveBeenCalledWith('Event not relevant. Not Indexing...');
   });
 
+  it('should skip indexing when the workflow is not relevant', async () => {
+    const events = ['pull_request', 'release'];
+    const workflows = ['Publish snapshots to maven'];
+    context.payload.workflow_run.name = 'Sample Workflow';
+    context.payload.workflow_run.event = 'pull_request';
+
+    await githubWorkflowRunsMonitor(app, context, resource, { events, workflows });
+
+    expect(app.log.info).toHaveBeenCalledWith('Workflow not relevant. Not Indexing...');
+  });
+
   it('should index log data when the event is relevant', async () => {
     const events = ['push', 'pull_request'];
+    const workflows = ['Publish snapshots to maven'];
 
     const mockClient = {
       index: jest.fn().mockResolvedValue({}),
@@ -88,7 +109,7 @@ describe('githubWorkflowRunsMonitor', () => {
     (OpensearchClient as jest.Mock).mockImplementation(() => {
       return { getClient: jest.fn().mockResolvedValue(mockClient) };
     });
-    await githubWorkflowRunsMonitor(app, context, resource, { events });
+    await githubWorkflowRunsMonitor(app, context, resource, { events, workflows });
     expect(mockClient.index).toHaveBeenCalledWith({
       index: expect.stringMatching(/^github-ci-workflow-runs-\d{2}-\d{4}$/),
       body: expect.objectContaining({
@@ -96,7 +117,7 @@ describe('githubWorkflowRunsMonitor', () => {
         repository: 'repo',
         organization: 'org',
         id: 123,
-        name: 'Test Workflow',
+        name: 'Publish snapshots to maven',
         head_branch: 'main',
         head_sha: 'abcdef123456',
         triggering_actor_login: 'test-user',
@@ -108,6 +129,7 @@ describe('githubWorkflowRunsMonitor', () => {
 
   it('should log an error if indexing fails', async () => {
     const events = ['push', 'pull_request'];
+    const workflows = ['Publish snapshots to maven'];
 
     const mockClient = {
       index: jest.fn().mockRejectedValue(new Error('Indexing failed')),
@@ -115,7 +137,56 @@ describe('githubWorkflowRunsMonitor', () => {
     (OpensearchClient as jest.Mock).mockImplementation(() => {
       return { getClient: jest.fn().mockResolvedValue(mockClient) };
     });
-    await githubWorkflowRunsMonitor(app, context, resource, { events });
+    await githubWorkflowRunsMonitor(app, context, resource, { events, workflows });
     expect(app.log.error).toHaveBeenCalledWith('Error indexing log data: Error: Indexing failed');
+  });
+
+  it('should publish CloudWatch metric for a successful workflow run', async () => {
+    const events = ['push', 'pull_request'];
+    const workflows = ['Publish snapshots to maven'];
+
+    mockCloudWatchClient.send.mockResolvedValue({});
+
+    await githubWorkflowRunsMonitor(app, context, resource, { events, workflows });
+
+    expect(mockCloudWatchClient.send).toHaveBeenCalledWith(expect.any(PutMetricDataCommand));
+    expect(app.log.info).toHaveBeenCalledWith('CloudWatch metric for workflow published.');
+  });
+
+  it('should publish CloudWatch metric for a failed workflow run with failure conclusion', async () => {
+    const events = ['push', 'pull_request'];
+    const workflows = ['Publish snapshots to maven'];
+    context.payload.workflow_run.conclusion = 'failure';
+
+    mockCloudWatchClient.send.mockResolvedValue({});
+
+    await githubWorkflowRunsMonitor(app, context, resource, { events, workflows });
+
+    expect(mockCloudWatchClient.send).toHaveBeenCalledWith(expect.any(PutMetricDataCommand));
+    expect(app.log.info).toHaveBeenCalledWith('CloudWatch metric for workflow published.');
+  });
+
+  it('should publish CloudWatch metric for a failed workflow run with startup_failure conclusion', async () => {
+    const events = ['push', 'pull_request'];
+    const workflows = ['Publish snapshots to maven'];
+    context.payload.workflow_run.conclusion = 'startup_failure';
+
+    mockCloudWatchClient.send.mockResolvedValue({});
+
+    await githubWorkflowRunsMonitor(app, context, resource, { events, workflows });
+
+    expect(mockCloudWatchClient.send).toHaveBeenCalledWith(expect.any(PutMetricDataCommand));
+    expect(app.log.info).toHaveBeenCalledWith('CloudWatch metric for workflow published.');
+  });
+
+  it('should log an error if CloudWatch metric publishing fails', async () => {
+    const events = ['push', 'pull_request'];
+    const workflows = ['Publish snapshots to maven'];
+
+    mockCloudWatchClient.send.mockRejectedValue(new Error('CloudWatch error'));
+
+    await githubWorkflowRunsMonitor(app, context, resource, { events, workflows });
+
+    expect(app.log.error).toHaveBeenCalledWith('Error Publishing CloudWatch metric for workflow : Error: CloudWatch error');
   });
 });

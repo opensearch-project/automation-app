@@ -1,6 +1,6 @@
 {
   "name": "opensearch-automation-app",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "An Automation App that handles all your GitHub Repository Activities",
   "author": "Peter Zhu",
   "homepage": "https://github.com/opensearch-project/automation-app",
@@ -26,6 +26,7 @@
     "junit": "jest --reporters=jest-junit"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.664.0",
     "@aws-sdk/client-opensearch": "^3.658.1",
     "@aws-sdk/client-sts": "^3.658.1",
     "@aws-sdk/types": "^3.654.0",

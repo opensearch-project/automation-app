@@ -31,11 +31,9 @@ The `docker-compose.yml` is configured to use a Node.js image and to run the app
 
 The [Dockerfile](Dockerfile) is used to create a Docker image for the app.
 
-
 ### Docker Compose File
 
 The [compose.yml](compose.yaml) file sets up a service (automation-app) to run the app:
-
 
 ### Run multiple Services
 
