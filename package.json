@@ -1,6 +1,6 @@
 {
   "name": "opensearch-automation-app",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "description": "An Automation App that handles all your GitHub Repository Activities",
   "author": "Peter Zhu",
   "homepage": "https://github.com/opensearch-project/automation-app",
@@ -22,7 +22,8 @@
     "format": "prettier --write src/**/*.ts test/**/*.ts configs/**/*.yml",
     "format-dryrun": "prettier --check src/**/*.ts test/**/*.ts configs/**/*.yml",
     "lint": "eslint --fix \"src/**/*.ts\" --ignore-pattern \"**/*.d.ts\"",
-    "test": "jest --coverage --reporters=jest-junit"
+    "test": "jest --coverage",
+    "junit": "jest --reporters=jest-junit"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.664.0",

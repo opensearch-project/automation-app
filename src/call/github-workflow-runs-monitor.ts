@@ -13,10 +13,10 @@
 //  - events     : The list of events to monitor and index, from https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows.
 
 import { Probot } from 'probot';
+import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 import { Resource } from '../service/resource/resource';
 import { OpensearchClient } from '../utility/opensearch/opensearch-client';
 import { validateResourceConfig } from '../utility/verification/verify-resource';
-import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 
 interface WorkflowRunMonitorArgs {
   events: string[];
@@ -82,11 +82,8 @@ export default async function githubWorkflowRunsMonitor(
     app.log.error(`Error indexing log data: ${error}`);
   }
 
-  let count: any;
-  if (job?.status === 'completed' && job?.conclusion === 'success') {
-    count = 0;
-  }
-  if (job?.status === 'completed' && job?.conclusion === 'failure') {
+  let count = 0;
+  if (job?.status === 'completed' && (job?.conclusion === 'failure' || job?.conclusion === 'startup_failure')) {
     count = 1;
   }
   try {
@@ -108,7 +105,7 @@ export default async function githubWorkflowRunsMonitor(
       ],
     });
     await cloudWatchClient.send(putMetricDataCommand);
-    app.log.info('CloudWatch metric for workflow failure published.');
+    app.log.info('CloudWatch metric for workflow published.');
   } catch (error) {
     app.log.error(`Error Publishing CloudWatch metric for workflow : ${error}`);
   }

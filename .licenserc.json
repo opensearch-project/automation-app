@@ -28,6 +28,7 @@
     ".gz",
     ".toml",
     ".ini",
-    "gradle/wrapper"
+    "gradle/wrapper",
+    ".env.example"
   ]
 }

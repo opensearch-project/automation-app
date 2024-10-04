@@ -1,5 +1,5 @@
 ---
-name: Check Version Bump
+name: check-version-bump
 
 on:
   pull_request:

@@ -16,7 +16,7 @@ This repository hosts the source code of an automation app to handle the daily a
 
 ## Project Resources
 
-The automation app utilizes the [Probot](https://probot.github.io/) framework and [Octokit](https://docs.github.com/en/rest/using-the-rest-api/libraries-for-the-rest-api?apiVersion=2022-11-28) library to perform user-defined operations on top of the resources within GitHub. See [configs](configs/operations/hello-world.yml) yaml for more information.
+The automation app utilizes the [Probot](https://probot.github.io/) framework and [Octokit](https://docs.github.com/en/rest/using-the-rest-api/libraries-for-the-rest-api?apiVersion=2022-11-28) library to perform user-defined operations on top of the resources within GitHub. See [configs](configs) yaml for more information.
 
 ## Usages
 
@@ -33,8 +33,8 @@ A `Service` is an instance of the app that manages and manipulates specific `Res
 
 To create a service, you need two configuration files:
 
-- **Resource configuration file**: Defines the resources that the service will manage or modify (`configs/resources/sample-resource.yml`).
-- **Operation configuration file**: Defines the operations (tasks) that the service will execute with the resources (`configs/resources/sample-operation.yml`).
+- **Resource configuration file**: Defines the resources that the service will manage or modify. [Sample Resource Config](configs/resources/sample-resource.yml).
+- **Operation configuration file**: Defines the operations (tasks) that the service will execute with the resources. [Sample Operation Config](configs/operations/sample-operation.yml).
 
 ### Start the Service
 
@@ -66,12 +66,12 @@ When you run the above command, the following takes place:
 #### List of Environment Variables (You can use them directly in the startup command, export them, or add them to the `.env` file):
 
 | Name                        | Type    | Default   | Description                                                                                                                                                        | Example                                   |
-| --------------------------- | ------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------- | --- |
+| --------------------------- | ------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
 | RESOURCE_CONFIG             | String  | ''        | Path to resource config yaml file.                                                                                                                                 | 'configs/resources/sample-resource.yml'   |
 | OPERATION_CONFIG            | String  | ''        | Path to operation config yaml file.                                                                                                                                | 'configs/operations/sample-operation.yml' |
 | INSTALLATION_ID             | String  | ''        | Installation Id of your GitHub App, must install the App to repositories before retrieving the id.                                                                 | '1234567890'                              |
 | ADDITIONAL_RESOURCE_CONTEXT | Boolean | false     | Setting true will let each resource defined in RESOURCE_CONFIG to call GitHub Rest API and GraphQL for more detailed context (ex: node_id). Increase startup time. | true / false                              |
-| SERVICE_NAME                | String  | 'default' | Set Service Name                                                                                                                                                   | 'My Service'                              | '   |
+| SERVICE_NAME                | String  | 'default' | Set Service Name                                                                                                                                                   | 'My Service'                              |
 
 #### Start the Service with Docker
 
