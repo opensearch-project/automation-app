@@ -1,0 +1,26 @@
+---
+name: Activity Events Monitor
+
+events:
+  - issues.opened
+  - issues.closed
+  - issues.labeled
+  - issues.unlabeled
+  - issues.transferred
+  - issues.assigned
+  - issue_comment.created
+  - pull_request.closed
+  - pull_request.opened
+  - pull_request.labeled
+  - pull_request.unlabeled
+  - pull_request.assigned
+  - pull_request_review.submitted
+  - pull_request_review_comment.created
+  - gollum
+#  - push
+#  - release.released
+#  - project.edited
+
+tasks:
+  - name: Activity Events Monitor Operation
+    call: github-activity-events-monitor@default
