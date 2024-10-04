@@ -21,7 +21,7 @@ export default async function githubActivityEventsMonitor(app: Probot, context: 
   const repoName = context.payload.repository?.name;
   const orgName = context.payload.organization?.login || context.payload.repository?.owner?.login;
 
-  const logData = {
+  const event = {
     id: context.id,
     organization: orgName,
     repository: repoName,
@@ -38,10 +38,10 @@ export default async function githubActivityEventsMonitor(app: Probot, context: 
   try {
     await client.index({
       index: `github-activity-events-${month}-${year}`,
-      body: logData,
+      body: event,
     });
-    app.log.info('Log data indexed successfully.');
+    app.log.info('Event indexed successfully.');
   } catch (error) {
-    app.log.error(`Error indexing log data: ${error}`);
+    app.log.error(`Error indexing event: ${error}`);
   }
 }
