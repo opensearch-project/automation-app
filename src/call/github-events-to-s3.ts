@@ -18,15 +18,17 @@ import { validateResourceConfig } from '../utility/verification/verify-resource'
 export default async function githubEventsToS3(app: Probot, context: any, resource: Resource): Promise<void> {
   if (!(await validateResourceConfig(app, context, resource))) return;
 
+  const repoName = context.payload.repository?.name;
+
   const now = new Date();
   const [day, month, year] = [now.getDate(), now.getMonth() + 1, now.getFullYear()].map((num) => String(num).padStart(2, '0'));
 
   try {
     const s3Client = new S3Client({ region: String(process.env.REGION) });
     const putObjectCommand = new PutObjectCommand({
-      Bucket: 'github-events',
+      Bucket: 'opensearch-project-github-events',
       Body: JSON.stringify(context),
-      Key: `${context.name}/${year}-${month}-${day}/${context.id}`,
+      Key: `${context.name}.${context.payload.action}/${year}-${month}-${day}/${repoName}-${context.id}`,
     });
     await s3Client.send(putObjectCommand);
     app.log.info('GitHub Event uploaded to S3 successfully.');
