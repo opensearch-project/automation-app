@@ -1,0 +1,9 @@
+---
+name: Github Events To S3
+
+events:
+  - all
+
+tasks:
+  - name: Github Events To S3 Operation
+    call: github-events-to-s3@default
