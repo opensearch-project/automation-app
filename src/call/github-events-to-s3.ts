@@ -26,7 +26,7 @@ export default async function githubEventsToS3(app: Probot, context: any, resour
   try {
     const s3Client = new S3Client({ region: String(process.env.REGION) });
     const putObjectCommand = new PutObjectCommand({
-      Bucket: 'opensearch-project-github-events',
+      Bucket: String(process.env.OPENSEARCH_EVENTS_BUCKET),
       Body: JSON.stringify(context),
       Key: `${context.name}.${context.payload.action}/${year}-${month}-${day}/${repoName}-${context.id}`,
     });
