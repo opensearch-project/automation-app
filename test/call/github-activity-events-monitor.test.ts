@@ -50,6 +50,10 @@ describe('githubActivityEventsMonitor', () => {
     };
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should index events', async () => {
     const mockClient = {
       index: jest.fn().mockResolvedValue({}),

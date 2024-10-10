@@ -52,6 +52,10 @@ describe('printToConsoleFunctions', () => {
     };
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('printToConsole', () => {
     it('should print defined text in task', async () => {
       await printToConsole(app, context, resource, args);

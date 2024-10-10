@@ -82,6 +82,10 @@ describe('githubMergedPullsMonitor', () => {
     };
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should skip processing if the pull request is not merged', async () => {
     context.payload.pull_request.merged = false;
     await githubMergedPullsMonitor(app, context, resource);

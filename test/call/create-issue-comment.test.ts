@@ -70,6 +70,10 @@ describe('createIssueCommentFunctions', () => {
     };
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('createIssueComment', () => {
     it('should write comments based on user defined text', async () => {
       await createIssueComment(app, context, resource, args);

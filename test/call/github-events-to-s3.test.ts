@@ -13,7 +13,7 @@ import githubEventsToS3 from '../../src/call/github-events-to-s3';
 
 jest.mock('@aws-sdk/client-s3');
 
-describe('githubWorkflowRunsMonitor', () => {
+describe('githubEventsToS3', () => {
   let app: Probot;
   let context: any;
   let resource: any;
@@ -53,6 +53,10 @@ describe('githubWorkflowRunsMonitor', () => {
     (S3Client as jest.Mock).mockImplementation(() => mockS3Client);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should upload to S3 on event listened', async () => {
     mockS3Client.send.mockResolvedValue({});
 
@@ -68,5 +72,56 @@ describe('githubWorkflowRunsMonitor', () => {
     await githubEventsToS3(app, context, resource);
 
     expect(app.log.error).toHaveBeenCalledWith('Error uploading GitHub Event to S3 : Error: S3 error');
+  });
+
+  it('S3 key name set with action', async () => {
+    context = {
+      name: 'name',
+      id: 'id',
+      payload: {
+        repository: {
+          name: 'repo',
+          owner: { login: 'org' },
+        },
+        action: 'action',
+      },
+    };
+
+    jest.spyOn(Date.prototype, 'getDate').mockReturnValue(4);
+    jest.spyOn(Date.prototype, 'getMonth').mockReturnValue(8);
+    jest.spyOn(Date.prototype, 'getFullYear').mockReturnValue(2024);
+
+    await githubEventsToS3(app, context, resource);
+
+    expect(PutObjectCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        Key: expect.stringMatching(`name.action/2024-09-04/repo-id`),
+      }),
+    );
+  });
+
+  it('S3 key name set without action', async () => {
+    context = {
+      name: 'name',
+      id: 'id',
+      payload: {
+        repository: {
+          name: 'repo',
+          owner: { login: 'org' },
+        },
+      },
+    };
+
+    jest.spyOn(Date.prototype, 'getDate').mockReturnValue(4);
+    jest.spyOn(Date.prototype, 'getMonth').mockReturnValue(8);
+    jest.spyOn(Date.prototype, 'getFullYear').mockReturnValue(2024);
+
+    await githubEventsToS3(app, context, resource);
+
+    expect(PutObjectCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        Key: expect.stringMatching(`name/2024-09-04/repo-id`),
+      }),
+    );
   });
 });
