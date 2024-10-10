@@ -78,6 +78,10 @@ describe('githubWorkflowRunsMonitor', () => {
     (CloudWatchClient as jest.Mock).mockImplementation(() => mockCloudWatchClient);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should skip indexing when the event is not relevant', async () => {
     const events = ['pull_request', 'release'];
     const workflows = ['Publish snapshots to maven'];

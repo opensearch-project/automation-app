@@ -19,6 +19,7 @@ export default async function githubEventsToS3(app: Probot, context: any, resour
   if (!(await validateResourceConfig(app, context, resource))) return;
 
   const repoName = context.payload.repository?.name;
+  const eventName = context.payload.action === undefined ? context.name : `${context.name}.${context.payload.action}`;
 
   const now = new Date();
   const [day, month, year] = [now.getDate(), now.getMonth() + 1, now.getFullYear()].map((num) => String(num).padStart(2, '0'));
@@ -28,7 +29,7 @@ export default async function githubEventsToS3(app: Probot, context: any, resour
     const putObjectCommand = new PutObjectCommand({
       Bucket: String(process.env.OPENSEARCH_EVENTS_BUCKET),
       Body: JSON.stringify(context),
-      Key: `${context.name}.${context.payload.action}/${year}-${month}-${day}/${repoName}-${context.id}`,
+      Key: `${eventName}/${year}-${month}-${day}/${repoName}-${context.id}`,
     });
     await s3Client.send(putObjectCommand);
     app.log.info('GitHub Event uploaded to S3 successfully.');
