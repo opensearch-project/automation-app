@@ -77,6 +77,10 @@ When you run the above command, the following takes place:
 
 For detailed instructions on starting the service with Docker, refer to the project's [Docker Setup](./docker/README.md).
 
+### Bump Package Version
+
+Please bump package version with every new commit by updating `package.json` and run `npm install` to update `package-lock.json`. Please do not use `npm version <>` as it will not sign DCO for your commit.
+
 ## Code of Conduct
 
 This project has adopted [the Open Source Code of Conduct](CODE_OF_CONDUCT.md).
