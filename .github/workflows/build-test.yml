@@ -1,7 +1,12 @@
 ---
 name: build-test
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request_target:
+    types: [opened, synchronize, reopened]
 
 jobs:
   build-test:
