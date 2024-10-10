@@ -13,7 +13,8 @@ jobs:
         id: check
         uses: EndBug/version-check@v2
         with:
-          diff-search: true
+          file-url: https://raw.githubusercontent.com/opensearch-project/automation-app/refs/heads/main/package.json
+          static-checking: localIsNew
 
       - name: Log when changed
         if: steps.check.outputs.changed == 'true'
