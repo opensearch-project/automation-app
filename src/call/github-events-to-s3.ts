@@ -21,6 +21,8 @@ export default async function githubEventsToS3(app: Probot, context: any, resour
   const repoName = context.payload.repository?.name;
   const eventName = context.payload.action === undefined ? context.name : `${context.name}.${context.payload.action}`;
 
+  context.uploaded_at = new Date().toISOString();
+
   const now = new Date();
   const [day, month, year] = [now.getDate(), now.getMonth() + 1, now.getFullYear()].map((num) => String(num).padStart(2, '0'));
 
