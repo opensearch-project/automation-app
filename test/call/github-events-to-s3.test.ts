@@ -90,11 +90,13 @@ describe('githubEventsToS3', () => {
     jest.spyOn(Date.prototype, 'getDate').mockReturnValue(4);
     jest.spyOn(Date.prototype, 'getMonth').mockReturnValue(8);
     jest.spyOn(Date.prototype, 'getFullYear').mockReturnValue(2024);
+    jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-10-04T21:00:06.875Z');
 
     await githubEventsToS3(app, context, resource);
 
     expect(PutObjectCommand).toHaveBeenCalledWith(
       expect.objectContaining({
+        Body: expect.stringMatching('"uploaded_at":"2024-10-04T21:00:06.875Z"'),
         Key: expect.stringMatching(`name.action/2024-09-04/repo-id`),
       }),
     );
@@ -115,11 +117,13 @@ describe('githubEventsToS3', () => {
     jest.spyOn(Date.prototype, 'getDate').mockReturnValue(4);
     jest.spyOn(Date.prototype, 'getMonth').mockReturnValue(8);
     jest.spyOn(Date.prototype, 'getFullYear').mockReturnValue(2024);
+    jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-10-04T21:00:06.875Z');
 
     await githubEventsToS3(app, context, resource);
 
     expect(PutObjectCommand).toHaveBeenCalledWith(
       expect.objectContaining({
+        Body: expect.stringMatching('"uploaded_at":"2024-10-04T21:00:06.875Z"'),
         Key: expect.stringMatching(`name/2024-09-04/repo-id`),
       }),
     );
