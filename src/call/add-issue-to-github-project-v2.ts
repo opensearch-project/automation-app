@@ -25,7 +25,7 @@ export interface AddIssueToGitHubProjectV2Params {
   projects: string[];
 }
 
-async function validateProjects(app: Probot, resource: Resource, projectsArray: string[]): Promise<Boolean> {
+export async function validateProjects(app: Probot, resource: Resource, projectsArray: string[]): Promise<Boolean> {
   return projectsArray.every((proj) => {
     const projOrg = proj.split('/')[0];
     const projNum = Number(proj.split('/')[1]);
