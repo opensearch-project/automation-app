@@ -13,6 +13,7 @@
 //   - labels   : (array) label name, add any of the listed labels on an issue will add the issue to project listed in `projects` arg
 //   - projects : (array) the list of `<Organization Name>/<Project Number> for the issues to be added to.
 //              : Ex: `opensearch-project/206` which is the OpenSearch Roadmap Project
+// Requirements : ADDITIONAL_RESOURCE_CONTEXT=true
 
 import crypto from 'crypto';
 import { Probot } from 'probot';
