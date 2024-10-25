@@ -15,7 +15,7 @@
 //              : Ex: `opensearch-project/206` which is the OpenSearch Roadmap Project
 // Requirements : ADDITIONAL_RESOURCE_CONTEXT=true
 
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { Probot } from 'probot';
 import { Resource } from '../service/resource/resource';
 import { validateResourceConfig } from '../utility/verification/verify-resource';
@@ -45,49 +45,54 @@ export default async function addIssueToGitHubProjectV2(
   context: any,
   resource: Resource,
   { labels, projects }: AddIssueToGitHubProjectV2Params,
-): Promise<string | Map<string, string>> {
-  if (!(await validateResourceConfig(app, context, resource))) return 'none';
-  if (!(await validateProjects(app, resource, projects))) return 'none';
+): Promise<void | Map<string, [string, string]>> {
+  if (!(await validateResourceConfig(app, context, resource))) return;
+  if (!(await validateProjects(app, resource, projects))) return;
 
   // Verify triggered label
   const label = context.payload.label.name.trim();
   if (!labels.includes(label)) {
     app.log.error(`"${label}" is not defined in call paramter "labels": ${labels}.`);
-    return 'none';
+    return;
   }
 
   const orgName = context.payload.organization.login;
   const repoName = context.payload.repository.name;
   const issueNumber = context.payload.issue.number;
   const issueNodeId = context.payload.issue.node_id;
-  const itemIdMap = new Map<string, string>();
+  const itemIdMap = new Map<string, [string, string]>();
 
   // Add to project
-  await Promise.all(
-    projects.map(async (project) => {
-      app.log.info(`Attempt to add ${orgName}/${repoName}/${issueNumber} to project ${project}`);
-      const mutationId = await crypto.randomBytes(20).toString('hex');
-      const projectSplit = project.split('/');
-      const projectNodeId = resource.organizations.get(projectSplit[0])?.projects.get(Number(projectSplit[1]))?.nodeId;
-      const addToProjectMutation = `
-        mutation {
-          addProjectV2ItemById(input: {
-            clientMutationId: "${mutationId}",
-            contentId: "${issueNodeId}",
-            projectId: "${projectNodeId}",
-          }) {
-            item {
-              id
+  try {
+    await Promise.all(
+      projects.map(async (project) => {
+        app.log.info(`Attempt to add ${orgName}/${repoName}/${issueNumber} to project ${project}`);
+        const mutationId = await crypto.randomBytes(20).toString('hex');
+        const projectSplit = project.split('/');
+        const projectNodeId = resource.organizations.get(projectSplit[0])?.projects.get(Number(projectSplit[1]))?.nodeId;
+        const addToProjectMutation = `
+          mutation {
+            addProjectV2ItemById(input: {
+              clientMutationId: "${mutationId}",
+              contentId: "${issueNodeId}",
+              projectId: "${projectNodeId}",
+            }) {
+              item {
+                id
+              }
             }
           }
-        }
-      `;
-      const responseAddToProject = await context.octokit.graphql(addToProjectMutation);
-      app.log.info(responseAddToProject);
-      const itemId = responseAddToProject.addProjectV2ItemById.item.id;
-      itemIdMap.set(project, itemId);
-    }),
-  );
+        `;
+        const responseAddToProject = await context.octokit.graphql(addToProjectMutation);
+        app.log.info(responseAddToProject);
+        const itemId = responseAddToProject.addProjectV2ItemById.item.id;
+        itemIdMap.set(project, [itemId, label]);
+      }),
+    );
+  } catch (e) {
+    app.log.error(`ERROR: ${e}`);
+    return;
+  }
 
   return itemIdMap;
 }

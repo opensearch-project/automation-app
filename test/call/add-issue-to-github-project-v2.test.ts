@@ -1,7 +1,15 @@
-//import * as crypto from 'crypto';
 import addIssueToGitHubProjectV2, { AddIssueToGitHubProjectV2Params } from '../../src/call/add-issue-to-github-project-v2';
 import { validateProjects } from '../../src/call/add-issue-to-github-project-v2';
 import { Probot, Logger } from 'probot';
+
+// Mock mutationId return
+jest.mock('crypto', () => ({
+  randomBytes: jest.fn(() => {
+    return {
+      toString: jest.fn().mockReturnValue('mutation-id'),
+    };
+  }),
+}));
 
 describe('addIssueToGitHubProjectV2Functions', () => {
   let app: Probot;
@@ -44,12 +52,6 @@ describe('addIssueToGitHubProjectV2Functions', () => {
       labels: ['Meta', 'RFC'],
       projects: ['test-org/222'],
     };
-
-    jest.mock('crypto', () => ({
-      randomBytes: jest.fn().mockReturnValue({
-        toString: jest.fn().mockReturnValue('mocked-mutation-id'),
-      }),
-    }));
   });
 
   afterEach(() => {
@@ -71,12 +73,53 @@ describe('addIssueToGitHubProjectV2Functions', () => {
   describe('addIssueToGitHubProjectV2', () => {
     it('should print error if context label does not match the ones in resource config', async () => {
       context.payload.label.name = 'enhancement';
-  
+
       const result = await addIssueToGitHubProjectV2(app, context, resource, params);
-  
+
       expect(app.log.error).toHaveBeenCalledWith('"enhancement" is not defined in call paramter "labels": Meta,RFC.');
-      expect(result).toBe('none');
+      expect(result).toBe(undefined);
       expect(context.octokit.graphql).not.toHaveBeenCalled();
+    });
+
+    it('should add context issue to project when conditions are met', async () => {
+      const graphQLResponse = {
+        addProjectV2ItemById: { item: { id: 'new-item-id' } },
+      };
+
+      context.octokit.graphql.mockResolvedValue(graphQLResponse);
+
+      const result = await addIssueToGitHubProjectV2(app, context, resource, params);
+
+      /* prettier-ignore-start */
+      const graphQLCallStack = `
+          mutation {
+            addProjectV2ItemById(input: {
+              clientMutationId: "mutation-id",
+              contentId: "issue-111-nodeid",
+              projectId: "project-222-nodeid",
+            }) {
+              item {
+                id
+              }
+            }
+          }
+        `;
+      /* prettier-ignore-end */
+
+      expect(context.octokit.graphql).toHaveBeenCalledWith(graphQLCallStack);
+      expect(JSON.stringify((result as Map<string, [string, string]>).get('test-org/222'))).toBe('["new-item-id","Meta"]');
+      expect(app.log.info).toHaveBeenCalledWith(graphQLResponse);
+    });
+
+    it('should print log error when GraphQL call fails', async () => {
+      context.octokit.graphql.mockRejectedValue(new Error('GraphQL request failed'));
+
+      const result = await addIssueToGitHubProjectV2(app, context, resource, params)
+
+      expect(context.octokit.graphql).rejects.toThrow('GraphQL request failed')
+      expect(context.octokit.graphql).toHaveBeenCalled();
+      expect(result).toBe(undefined);
+      expect(app.log.error).toHaveBeenCalledWith('ERROR: Error: GraphQL request failed');
     });
   });
 });
