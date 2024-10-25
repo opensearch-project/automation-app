@@ -15,7 +15,7 @@
 //              : Ex: `opensearch-project/206` which is the OpenSearch Roadmap Project
 // Requirements : ADDITIONAL_RESOURCE_CONTEXT=true
 
-import * as crypto from 'crypto';
+import { randomBytes } from 'crypto';
 import { Probot } from 'probot';
 import { Resource } from '../service/resource/resource';
 import { validateResourceConfig } from '../utility/verification/verify-resource';
@@ -45,15 +45,15 @@ export default async function addIssueToGitHubProjectV2(
   context: any,
   resource: Resource,
   { labels, projects }: AddIssueToGitHubProjectV2Params,
-): Promise<void | Map<string, [string, string]>> {
-  if (!(await validateResourceConfig(app, context, resource))) return;
-  if (!(await validateProjects(app, resource, projects))) return;
+): Promise<Map<string, [string, string]> | null> {
+  if (!(await validateResourceConfig(app, context, resource))) return null;
+  if (!(await validateProjects(app, resource, projects))) return null;
 
   // Verify triggered label
   const label = context.payload.label.name.trim();
   if (!labels.includes(label)) {
     app.log.error(`"${label}" is not defined in call paramter "labels": ${labels}.`);
-    return;
+    return null;
   }
 
   const orgName = context.payload.organization.login;
@@ -67,7 +67,7 @@ export default async function addIssueToGitHubProjectV2(
     await Promise.all(
       projects.map(async (project) => {
         app.log.info(`Attempt to add ${orgName}/${repoName}/${issueNumber} to project ${project}`);
-        const mutationId = await crypto.randomBytes(20).toString('hex');
+        const mutationId = await randomBytes(20).toString('hex');
         const projectSplit = project.split('/');
         const projectNodeId = resource.organizations.get(projectSplit[0])?.projects.get(Number(projectSplit[1]))?.nodeId;
         const addToProjectMutation = `
@@ -91,7 +91,7 @@ export default async function addIssueToGitHubProjectV2(
     );
   } catch (e) {
     app.log.error(`ERROR: ${e}`);
-    return;
+    return null;
   }
 
   return itemIdMap;

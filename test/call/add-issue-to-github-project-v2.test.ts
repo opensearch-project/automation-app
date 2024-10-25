@@ -1,3 +1,12 @@
+/*
+ * Copyright OpenSearch Contributors
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The OpenSearch Contributors require contributions made to
+ * this file be licensed under the Apache-2.0 license or a
+ * compatible open source license.
+ */
+
 import addIssueToGitHubProjectV2, { AddIssueToGitHubProjectV2Params } from '../../src/call/add-issue-to-github-project-v2';
 import { validateProjects } from '../../src/call/add-issue-to-github-project-v2';
 import { Probot, Logger } from 'probot';
@@ -77,7 +86,7 @@ describe('addIssueToGitHubProjectV2Functions', () => {
       const result = await addIssueToGitHubProjectV2(app, context, resource, params);
 
       expect(app.log.error).toHaveBeenCalledWith('"enhancement" is not defined in call paramter "labels": Meta,RFC.');
-      expect(result).toBe(undefined);
+      expect(result).toBe(null);
       expect(context.octokit.graphql).not.toHaveBeenCalled();
     });
 
@@ -114,11 +123,11 @@ describe('addIssueToGitHubProjectV2Functions', () => {
     it('should print log error when GraphQL call fails', async () => {
       context.octokit.graphql.mockRejectedValue(new Error('GraphQL request failed'));
 
-      const result = await addIssueToGitHubProjectV2(app, context, resource, params)
+      const result = await addIssueToGitHubProjectV2(app, context, resource, params);
 
-      expect(context.octokit.graphql).rejects.toThrow('GraphQL request failed')
+      expect(context.octokit.graphql).rejects.toThrow('GraphQL request failed');
       expect(context.octokit.graphql).toHaveBeenCalled();
-      expect(result).toBe(undefined);
+      expect(result).toBe(null);
       expect(app.log.error).toHaveBeenCalledWith('ERROR: Error: GraphQL request failed');
     });
   });
