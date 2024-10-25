@@ -81,6 +81,8 @@ For detailed instructions on starting the service with Docker, refer to the proj
 
 Please bump package version with every new commit by updating `package.json` and run `npm install` to update `package-lock.json`. Please do not use `npm version <>` as it will not sign DCO for your commit.
 
+You can run `npm run build` before sending any Pull Request to ensure all the lint / format / test pass beforehand.
+
 ## Code of Conduct
 
 This project has adopted [the Open Source Code of Conduct](CODE_OF_CONDUCT.md).

@@ -10,6 +10,7 @@
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { Client as OpenSearchClient } from '@opensearch-project/opensearch';
 import { OpensearchClient } from '../../../src/utility/opensearch/opensearch-client';
+import { AwsSigv4Signer } from '@opensearch-project/opensearch/aws-v3';
 
 jest.mock('@aws-sdk/client-sts');
 jest.mock('@opensearch-project/opensearch');
@@ -47,6 +48,10 @@ describe('OpensearchClient', () => {
     }));
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('getClient', () => {
     it('should return an OpenSearch client with valid credentials', async () => {
       const opensearchClient = new OpensearchClient();
@@ -58,6 +63,15 @@ describe('OpensearchClient', () => {
         RoleSessionName: 'githubWorkflowRunsMonitorSession',
       });
       expect(client).toBeInstanceOf(OpenSearchClient);
+
+      const getCredentials = (AwsSigv4Signer as jest.Mock).mock.calls[0][0].getCredentials;
+      const credentials = await getCredentials();
+
+      expect(credentials).toEqual({
+        accessKeyId: 'mockAccessKeyId',
+        secretAccessKey: 'mockSecretAccessKey',
+        sessionToken: 'mockSessionToken',
+      });
     });
 
     it('should throw an error if credentials are undefined', async () => {
