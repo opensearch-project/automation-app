@@ -16,8 +16,14 @@ jobs:
           - 18
           - 20
     runs-on: ubuntu-latest
+    if: github.repository == 'opensearch-project/automation-app'
     steps:
       - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+      - uses: actions/checkout@v4
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Set up node-${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -35,6 +41,7 @@ jobs:
       - name: Run junit
         run: npm run junit
       - name: Upload results to Codecov
+        if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

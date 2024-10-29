@@ -40,12 +40,11 @@ export class OpensearchClient {
     const client = new OpenSearchClient({
       ...AwsSigv4Signer({
         region: this._region,
-        getCredentials: () =>
-          Promise.resolve({
-            accessKeyId: credentials.AccessKeyId!,
-            secretAccessKey: credentials.SecretAccessKey!,
-            sessionToken: credentials.SessionToken!,
-          }),
+        getCredentials: () => Promise.resolve({
+          accessKeyId: credentials.AccessKeyId!,
+          secretAccessKey: credentials.SecretAccessKey!,
+          sessionToken: credentials.SessionToken!,
+        }),
       }),
       node: this._openSearchUrl,
     });
