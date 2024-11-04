@@ -36,6 +36,10 @@ describe('verifyResourceFunctions', () => {
     };
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('validateResourceConfig', () => {
     it('should fail if no org or repo data in payload', async () => {
       const result = await validateResourceConfig(app, context, resource);
