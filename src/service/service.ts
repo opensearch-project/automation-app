@@ -26,6 +26,9 @@ export class Service {
 
   private _app: Probot;
 
+  // Map<eventName, Map<taskName, returnValue>>
+  private _outputs: Map<string, Map<string, any>>;
+
   constructor(name: string) {
     this._name = name;
   }
@@ -55,6 +58,7 @@ export class Service {
     this._resource = await resConfigObj.initResource();
     const opConfigObj = new OperationConfig(operationConfigPath);
     this._operation = await opConfigObj.initOperation();
+    this._outputs = new Map<string, any>();
     this._registerEvents();
   }
 
@@ -63,8 +67,7 @@ export class Service {
       await promise; // Make sure tasks are completed in sequential orders
 
       const callPath = await realpath(`./bin/call/${task.callName}.js`);
-      const { callFunc } = task;
-      const { callArgs } = task;
+      const { name, callFunc, callArgs } = task;
 
       console.log(`[${event}]: Verify call lib: ${callPath}`);
       try {
@@ -76,7 +79,9 @@ export class Service {
       const callStack = await import(callPath);
       if (callFunc === 'default') {
         console.log(`[${event}]: Call default function: [${callStack.default.name}]`);
-        await callStack.default(this.app, context, this.resource, { ...callArgs });
+        const resultDefault = await callStack.default(this.app, context, this.resource, { ...callArgs });
+        this._outputs.get(event)?.set(name, resultDefault);
+        console.log(this._outputs.get(event));
       } else {
         console.log(callStack);
         const callFuncCustom = callStack[callFunc];
@@ -84,14 +89,13 @@ export class Service {
         if (!(typeof callFuncCustom === 'function')) {
           throw new Error(`[${event}]: ${callFuncCustom} is not a function, please verify in ${callPath}`);
         }
-        await callFuncCustom(this.app, context, this.resource, { ...callArgs });
+        this._outputs.set(name, await callFuncCustom(this.app, context, this.resource, { ...callArgs }));
       }
     }, Promise.resolve());
   }
 
   private async _registerEvents(): Promise<void> {
-    const { events } = this.operation;
-    const { tasks } = this.operation;
+    const { events, tasks } = this.operation;
     console.log(`Evaluate events: [${events}]`);
     if (!events) {
       throw new Error('No events defined in the operation!');
@@ -102,6 +106,7 @@ export class Service {
 
     events.forEach((event) => {
       console.log(`Register event: "${event}"`);
+      this._outputs.set(event, new Map<string, any>());
       if (event === 'all') {
         console.warn('WARNING! All events will be listened based on the config!');
         this._app.onAny(async (context) => {

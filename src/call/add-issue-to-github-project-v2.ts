@@ -49,6 +49,12 @@ export default async function addIssueToGitHubProjectV2(
   if (!(await validateResourceConfig(app, context, resource))) return null;
   if (!(await validateProjects(app, resource, projects))) return null;
 
+  // Verify triggered event
+  if (!context.payload.label) {
+    app.log.error('Only \'issues.labeled\' event is supported on this call.')
+    return null;
+  }
+
   // Verify triggered label
   const label = context.payload.label.name.trim();
   if (!labels.includes(label)) {
