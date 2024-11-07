@@ -73,6 +73,7 @@ describe('githubEventsToS3', () => {
     await githubEventsToS3(app, context);
 
     expect(mockS3Client.send).not.toHaveBeenCalledWith(expect.any(PutObjectCommand));
+    expect(app.log.error).toHaveBeenCalledWith('Event from repo skipped because it is a private repository.');
   });
 
   it('should log an error if S3 upload fails', async () => {

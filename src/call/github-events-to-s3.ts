@@ -16,9 +16,13 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 export default async function githubEventsToS3(app: Probot, context: any): Promise<void> {
   // Removed validateResourceConfig to let this function listen on all repos, and filter for only the repos that are public.
   // This is done so when a new repo is made public, this app can automatically start processing its events.
+  //
+  // This is only for the s3 data lake specific case, everything else should still specify repos required to be listened in resource config.
+  //
   // if (!(await validateResourceConfig(app, context, resource))) return;
+  //
+  const repoName = context.payload.repository?.name;
   if (context.payload.repository?.private === false) {
-    const repoName = context.payload.repository?.name;
     const eventName = context.payload.action === undefined ? context.name : `${context.name}.${context.payload.action}`;
 
     context.uploaded_at = new Date().toISOString();
@@ -38,5 +42,7 @@ export default async function githubEventsToS3(app: Probot, context: any): Promi
     } catch (error) {
       app.log.error(`Error uploading GitHub Event to S3 : ${error}`);
     }
+  } else {
+    app.log.error(`Event from ${repoName} skipped because it is a private repository.`);
   }
 }
