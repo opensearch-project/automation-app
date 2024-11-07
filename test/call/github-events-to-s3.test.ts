@@ -16,7 +16,6 @@ jest.mock('@aws-sdk/client-s3');
 describe('githubEventsToS3', () => {
   let app: Probot;
   let context: any;
-  let resource: any;
   let mockS3Client: any;
 
   beforeEach(() => {
@@ -33,18 +32,9 @@ describe('githubEventsToS3', () => {
         repository: {
           name: 'repo',
           owner: { login: 'org' },
+          private: false,
         },
       },
-    };
-    resource = {
-      organizations: new Map([
-        [
-          'org',
-          {
-            repositories: new Map([['repo', 'repo object']]),
-          },
-        ],
-      ]),
     };
 
     mockS3Client = {
@@ -60,16 +50,36 @@ describe('githubEventsToS3', () => {
   it('should upload to S3 on event listened', async () => {
     mockS3Client.send.mockResolvedValue({});
 
-    await githubEventsToS3(app, context, resource);
+    await githubEventsToS3(app, context);
 
     expect(mockS3Client.send).toHaveBeenCalledWith(expect.any(PutObjectCommand));
     expect(app.log.info).toHaveBeenCalledWith('GitHub Event uploaded to S3 successfully.');
   });
 
+  it('should not upload to S3 on event listened on private repo', async () => {
+    context = {
+      name: 'name',
+      id: 'id',
+      payload: {
+        repository: {
+          name: 'repo',
+          owner: { login: 'org' },
+          private: true,
+        },
+      },
+    };
+    mockS3Client.send.mockResolvedValue({});
+
+    await githubEventsToS3(app, context);
+
+    expect(mockS3Client.send).not.toHaveBeenCalledWith(expect.any(PutObjectCommand));
+    expect(app.log.error).toHaveBeenCalledWith('Event from repo skipped because it is a private repository.');
+  });
+
   it('should log an error if S3 upload fails', async () => {
     mockS3Client.send.mockRejectedValue(new Error('S3 error'));
 
-    await githubEventsToS3(app, context, resource);
+    await githubEventsToS3(app, context);
 
     expect(app.log.error).toHaveBeenCalledWith('Error uploading GitHub Event to S3 : Error: S3 error');
   });
@@ -82,6 +92,7 @@ describe('githubEventsToS3', () => {
         repository: {
           name: 'repo',
           owner: { login: 'org' },
+          private: false,
         },
         action: 'action',
       },
@@ -92,7 +103,7 @@ describe('githubEventsToS3', () => {
     jest.spyOn(Date.prototype, 'getFullYear').mockReturnValue(2024);
     jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-10-04T21:00:06.875Z');
 
-    await githubEventsToS3(app, context, resource);
+    await githubEventsToS3(app, context);
 
     expect(PutObjectCommand).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -110,6 +121,7 @@ describe('githubEventsToS3', () => {
         repository: {
           name: 'repo',
           owner: { login: 'org' },
+          private: false,
         },
       },
     };
@@ -119,7 +131,7 @@ describe('githubEventsToS3', () => {
     jest.spyOn(Date.prototype, 'getFullYear').mockReturnValue(2024);
     jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-10-04T21:00:06.875Z');
 
-    await githubEventsToS3(app, context, resource);
+    await githubEventsToS3(app, context);
 
     expect(PutObjectCommand).toHaveBeenCalledWith(
       expect.objectContaining({

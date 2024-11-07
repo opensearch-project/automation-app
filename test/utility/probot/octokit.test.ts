@@ -13,7 +13,7 @@ import { Probot, ProbotOctokit, Logger } from 'probot';
 describe('octokitFunctions', () => {
   let app: Probot;
   let installationId: number;
-  let octokitMock: ProbotOctokit
+  let octokitMock: ProbotOctokit;
 
   beforeEach(() => {
     app = new Probot({ appId: 1, secret: 'test', privateKey: 'test' });

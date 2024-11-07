@@ -13,7 +13,7 @@ jobs:
         id: check
         uses: EndBug/version-check@v2
         with:
-          file-url: "https://raw.githubusercontent.com/opensearch-project/automation-app/refs/heads/${{ github.event.pull_request.base.ref }}/package.json"
+          file-url: 'https://raw.githubusercontent.com/opensearch-project/automation-app/refs/heads/${{ github.event.pull_request.base.ref }}/package.json'
           static-checking: localIsNew
 
       - name: Log when changed
