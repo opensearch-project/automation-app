@@ -71,6 +71,7 @@ export class OperationConfig extends Config {
     const taskObjArray = taskDataArray.map((taskData) => {
       taskCounter++;
       const taskObj = new Task(taskData.call, taskData.args, taskData.name);
+      taskObj.name += '#' + taskCounter;
       console.log(`Setup Task ${taskCounter}: ${taskObj.name}`);
       return taskObj;
     });
