@@ -29,6 +29,8 @@ export class Service {
   // Map<eventName, Map<taskName, returnValue>>
   private _outputs: Map<string, Map<string, any>>;
 
+  private readonly subPattern = /\$\{\{\s*(.*?)\s*\}\}/;
+
   constructor(name: string) {
     this._name = name;
   }
@@ -79,6 +81,27 @@ export class Service {
       const callStack = await import(callPath);
       if (callFunc === 'default') {
         console.log(`[${event}]: Call default function: [${callStack.default.name}]`);
+        if (callArgs) {
+          console.log(`[${event}]: Call with args:`);
+          for (const name2 in callArgs) {
+            console.log(`[${event}]: args: ${name2}: ${callArgs[name2]}`);
+            if (Array.isArray(callArgs[name2])) {
+              for (let i = 0; i < callArgs[name2].length; i++) {
+                if (this.subPattern.test(callArgs[name2][i])) {
+                  console.log(`Array: ${callArgs[name2][i]}`);
+                }
+              }
+            } else {
+              const match = (callArgs[name2] as string).match(this.subPattern);
+              if (match) {
+                console.log(`StrSub: ${callArgs[name2]}, Match: ${match[1]}, ${match[1].replace('outputs.', '')}`);
+                console.log(this._outputs.get(event)?.get(match[1].replace('outputs.', '')))
+                callArgs[name2] = JSON.stringify(Object.fromEntries(this._outputs.get(event)?.get(match[1].replace('outputs.', ''))))
+              }
+            }
+          }
+        }
+
         const resultDefault = await callStack.default(this.app, context, this.resource, { ...callArgs });
         this._outputs.get(event)?.set(name, resultDefault);
         console.log(this._outputs.get(event));
@@ -89,7 +112,7 @@ export class Service {
         if (!(typeof callFuncCustom === 'function')) {
           throw new Error(`[${event}]: ${callFuncCustom} is not a function, please verify in ${callPath}`);
         }
-        this._outputs.set(name, await callFuncCustom(this.app, context, this.resource, { ...callArgs }));
+        this._outputs.get(event)?.set(name, await callFuncCustom(this.app, context, this.resource, { ...callArgs }));
       }
     }, Promise.resolve());
   }
