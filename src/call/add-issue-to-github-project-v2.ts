@@ -45,7 +45,7 @@ export default async function addIssueToGitHubProjectV2(
   context: any,
   resource: Resource,
   { labels, projects }: AddIssueToGitHubProjectV2Params,
-): Promise<Map<string, [string, string]> | null> {
+): Promise<string | null> {
   if (!(await validateResourceConfig(app, context, resource))) return null;
   if (!(await validateProjects(app, resource, projects))) return null;
 
@@ -66,7 +66,7 @@ export default async function addIssueToGitHubProjectV2(
   const repoName = context.payload.repository.name;
   const issueNumber = context.payload.issue.number;
   const issueNodeId = context.payload.issue.node_id;
-  const itemIdMap = new Map<string, [string, string]>();
+  let itemId = null
 
   // Add to project
   try {
@@ -91,8 +91,7 @@ export default async function addIssueToGitHubProjectV2(
         `;
         const responseAddToProject = await context.octokit.graphql(addToProjectMutation);
         app.log.info(responseAddToProject);
-        const itemId = responseAddToProject.addProjectV2ItemById.item.id;
-        itemIdMap.set(project, [itemId, label]);
+        itemId = responseAddToProject.addProjectV2ItemById.item.id;
       }),
     );
   } catch (e) {
@@ -100,5 +99,5 @@ export default async function addIssueToGitHubProjectV2(
     return null;
   }
 
-  return itemIdMap;
+  return itemId;
 }

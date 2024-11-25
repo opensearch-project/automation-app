@@ -15,6 +15,7 @@ import { Operation } from './operation/operation';
 import { Task } from './operation/task';
 import { ResourceConfig } from '../config/resource-config';
 import { OperationConfig } from '../config/operation-config';
+import { TaskArgData } from '../config/types';
 import { octokitAuth } from '../utility/probot/octokit';
 
 export class Service {
@@ -78,31 +79,13 @@ export class Service {
         console.error(`ERROR: ${e}`);
       }
 
+
       const callStack = await import(callPath);
+      const callArgsSub = await this._outputsSubstitution({ ...callArgs }, event);
+
       if (callFunc === 'default') {
         console.log(`[${event}]: Call default function: [${callStack.default.name}]`);
-        if (callArgs) {
-          console.log(`[${event}]: Call with args:`);
-          for (const name2 in callArgs) {
-            console.log(`[${event}]: args: ${name2}: ${callArgs[name2]}`);
-            if (Array.isArray(callArgs[name2])) {
-              for (let i = 0; i < callArgs[name2].length; i++) {
-                if (this.subPattern.test(callArgs[name2][i])) {
-                  console.log(`Array: ${callArgs[name2][i]}`);
-                }
-              }
-            } else {
-              const match = (callArgs[name2] as string).match(this.subPattern);
-              if (match) {
-                console.log(`StrSub: ${callArgs[name2]}, Match: ${match[1]}, ${match[1].replace('outputs.', '')}`);
-                console.log(this._outputs.get(event)?.get(match[1].replace('outputs.', '')))
-                callArgs[name2] = JSON.stringify(Object.fromEntries(this._outputs.get(event)?.get(match[1].replace('outputs.', ''))))
-              }
-            }
-          }
-        }
-
-        const resultDefault = await callStack.default(this.app, context, this.resource, { ...callArgs });
+        const resultDefault = await callStack.default(this.app, context, this.resource, { ...callArgsSub });
         this._outputs.get(event)?.set(name, resultDefault);
         console.log(this._outputs.get(event));
       } else {
@@ -112,9 +95,34 @@ export class Service {
         if (!(typeof callFuncCustom === 'function')) {
           throw new Error(`[${event}]: ${callFuncCustom} is not a function, please verify in ${callPath}`);
         }
-        this._outputs.get(event)?.set(name, await callFuncCustom(this.app, context, this.resource, { ...callArgs }));
+        this._outputs.get(event)?.set(name, await callFuncCustom(this.app, context, this.resource, { ...callArgsSub }));
       }
     }, Promise.resolve());
+  }
+
+  private async _outputsSubstitution(callArgsData: TaskArgData, event: string): Promise<TaskArgData> {
+    console.log(`[${event}]: Call with args:`);
+    for (const argName in callArgsData) {
+      console.log(`[${event}]: args: ${argName}: ${callArgsData[argName]}`);
+      if (Array.isArray(callArgsData[argName])) {
+        for (let i = 0; i < callArgsData[argName].length; i++) {
+          (callArgsData[argName] as string[])[i] = await this._matchSubPattern((callArgsData[argName][i] as string), event);
+        }
+      } else {
+       (callArgsData[argName] as string) = await this._matchSubPattern((callArgsData[argName] as string), event);
+      }
+    }
+    return callArgsData;
+  }
+
+  private async _matchSubPattern(callArgsValue: string, event: string): Promise<string> {
+    const match = callArgsValue.match(this.subPattern);
+    if (match) {
+      const outputMatch = this._outputs.get(event)?.get(match[1].replace('outputs.', ''));
+      console.log(`StrSub: ${callArgsValue}, Match: ${match[1]}, Output: ${outputMatch}`);
+      return outputMatch;
+    }
+    return callArgsValue;
   }
 
   private async _registerEvents(): Promise<void> {
