@@ -12,6 +12,7 @@
 
 import { Probot } from 'probot';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 
 export default async function githubEventsToS3(app: Probot, context: any): Promise<void> {
   // Removed validateResourceConfig to let this function listen on all repos, and filter for only the repos that are public.
@@ -23,6 +24,28 @@ export default async function githubEventsToS3(app: Probot, context: any): Promi
   //
   const repoName = context.payload.repository?.name;
   if (context.payload.repository?.private === false) {
+    // Handle canary event for monitoring purposes
+    if (repoName === 'opensearch-metrics' && context.name === 'label' && context.payload.label?.name === 's3-data-lake-app-canary-label') {
+      try {
+        const cloudWatchClient = new CloudWatchClient({ region: String(process.env.REGION) });
+        const putMetricDataCommand = new PutMetricDataCommand({
+          Namespace: 'GitHubCanary',
+          MetricData: [
+            {
+              MetricName: 'LabelCanaryEvent',
+              Value: 1,
+              Unit: 'Count',
+            },
+          ],
+        });
+        await cloudWatchClient.send(putMetricDataCommand);
+        app.log.info('CloudWatch metric for monitoring published.');
+      } catch (error) {
+        app.log.error(`Error Publishing CloudWatch metric for monitoring : ${error}`);
+      }
+      return;
+    }
+
     const eventName = context.payload.action === undefined ? context.name : `${context.name}.${context.payload.action}`;
 
     context.uploaded_at = new Date().toISOString();

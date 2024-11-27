@@ -10,13 +10,16 @@
 import { Logger, Probot } from 'probot';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import githubEventsToS3 from '../../src/call/github-events-to-s3';
+import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
 
 jest.mock('@aws-sdk/client-s3');
+jest.mock('@aws-sdk/client-cloudwatch');
 
 describe('githubEventsToS3', () => {
   let app: Probot;
   let context: any;
   let mockS3Client: any;
+  let mockCloudWatchClient: any;
 
   beforeEach(() => {
     app = new Probot({ appId: 1, secret: 'test', privateKey: 'test' });
@@ -41,6 +44,11 @@ describe('githubEventsToS3', () => {
       send: jest.fn(),
     };
     (S3Client as jest.Mock).mockImplementation(() => mockS3Client);
+
+    mockCloudWatchClient = {
+      send: jest.fn(),
+    };
+    (CloudWatchClient as jest.Mock).mockImplementation(() => mockCloudWatchClient);
   });
 
   afterEach(() => {
@@ -139,5 +147,73 @@ describe('githubEventsToS3', () => {
         Key: expect.stringMatching(`name/2024-09-04/repo-id`),
       }),
     );
+  });
+
+  it('should publish CloudWatch metric if event is label canary', async () => {
+    context = {
+      name: 'label',
+      id: 'id',
+      payload: {
+        label: {
+          name: 's3-data-lake-app-canary-label',
+        },
+        repository: {
+          name: 'opensearch-metrics',
+          private: false,
+        },
+      },
+    };
+
+    mockCloudWatchClient.send.mockResolvedValue({});
+
+    await githubEventsToS3(app, context);
+
+    expect(mockCloudWatchClient.send).toHaveBeenCalledWith(expect.any(PutMetricDataCommand));
+    expect(app.log.info).toHaveBeenCalledWith('CloudWatch metric for monitoring published.');
+  });
+
+  it('should not publish CloudWatch metric if event is not label canary', async () => {
+    context = {
+      name: 'label',
+      id: 'id',
+      payload: {
+        label: {
+          name: 'normal-label',
+        },
+        repository: {
+          name: 'opensearch-metrics',
+          private: false,
+        },
+      },
+    };
+
+    mockCloudWatchClient.send.mockResolvedValue({});
+
+    await githubEventsToS3(app, context);
+
+    expect(mockCloudWatchClient.send).not.toHaveBeenCalledWith(expect.any(PutMetricDataCommand));
+    expect(app.log.info).not.toHaveBeenCalledWith('CloudWatch metric for monitoring published.');
+  });
+
+  it('should log an error if CloudWatch metric publishing fails', async () => {
+    context = {
+      name: 'label',
+      id: 'id',
+      payload: {
+        label: {
+          name: 's3-data-lake-app-canary-label',
+        },
+        repository: {
+          name: 'opensearch-metrics',
+          private: false,
+        },
+      },
+    };
+
+    mockCloudWatchClient.send.mockRejectedValue(new Error('CloudWatch error'));
+
+    await githubEventsToS3(app, context);
+
+    expect(app.log.error).toHaveBeenCalledWith('Error Publishing CloudWatch metric for monitoring : Error: CloudWatch error');
   });
 });
