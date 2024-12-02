@@ -80,6 +80,15 @@ describe('addIssueToGitHubProjectV2Functions', () => {
   });
 
   describe('addIssueToGitHubProjectV2', () => {
+    it('should print error and return null if it is not a issues.labeled event', async () => {
+      context.payload.label = undefined;
+
+      const result = await addIssueToGitHubProjectV2(app, context, resource, params);
+
+      expect(app.log.error).toHaveBeenCalledWith("Only 'issues.labeled' event is supported on this call.");
+      expect(result).toBe(null);
+    });
+
     it('should print error if context label does not match the ones in resource config', async () => {
       context.payload.label.name = 'enhancement';
 
@@ -116,7 +125,7 @@ describe('addIssueToGitHubProjectV2Functions', () => {
       /* prettier-ignore-end */
 
       expect(context.octokit.graphql).toHaveBeenCalledWith(graphQLCallStack);
-      expect(JSON.stringify((result as Map<string, [string, string]>).get('test-org/222'))).toBe('["new-item-id","Meta"]');
+      expect(result).toBe('new-item-id');
       expect(app.log.info).toHaveBeenCalledWith(graphQLResponse);
     });
 

@@ -72,7 +72,8 @@ export class Service {
       const callPath = await realpath(`./bin/call/${task.callName}.js`);
       const { name, callFunc, callArgs } = task;
 
-      console.log(`[${event}]: Verify call lib: ${callPath}`);
+      console.log(`[${event}]: Start call now: ${name}`);
+      console.log(`[${event}]: Check call lib: ${callPath}`);
       try {
         await access(callPath);
       } catch (e) {
@@ -99,24 +100,34 @@ export class Service {
     }, Promise.resolve());
   }
 
-  private async _outputsSubstitution(callArgsData: TaskArgData, event: string): Promise<TaskArgData> {
+  private async _outputsSubstitution(callArgs: TaskArgData, event: string): Promise<TaskArgData> {
     console.log(`[${event}]: Call with args:`);
-    for (const argName in callArgsData) {
-      console.log(`[${event}]: args: ${argName}: ${callArgsData[argName]}`);
-      if (Array.isArray(callArgsData[argName])) {
-        for (let i = 0; i < callArgsData[argName].length; i++) {
-          (callArgsData[argName] as string[])[i] = await this._matchSubPattern(callArgsData[argName][i] as string, event);
+
+    const callArgsTemp = callArgs;
+    const argEntries = Object.entries(callArgsTemp);
+
+    await Promise.all(
+      argEntries.map(async ([argName, argValue]) => {
+        console.log(`[${event}]: args: ${argName}: ${argValue}`);
+
+        // Overwrite callArgsTemp if user choose to substitute value with outputs from previous task ${{ outputs.<TaskName>#<TaskOrder> }}
+        if (Array.isArray(argValue)) {
+          // string[]
+          callArgsTemp[argName] = await Promise.all(argValue.map(async (argValueItem) => this._matchSubPattern(argValueItem as string, event)));
+        } else {
+          // string
+          callArgsTemp[argName] = await this._matchSubPattern(argValue as string, event);
         }
-      } else {
-        (callArgsData[argName] as string) = await this._matchSubPattern(callArgsData[argName] as string, event);
-      }
-    }
-    return callArgsData;
+      }),
+    );
+    return callArgsTemp;
   }
 
   private async _matchSubPattern(callArgsValue: string, event: string): Promise<string> {
     const match = callArgsValue.match(this.subPattern);
     if (match) {
+      // If user substitution pattern ${{ outputs.<TaskName>#<TaskOrder> }} found in operation config
+      // Return substituion value based on return value saved in outputs
       const outputMatch = this._outputs.get(event)?.get(match[1].replace('outputs.', ''));
       console.log(`StrSub: ${callArgsValue}, Match: ${match[1]}, Output: ${outputMatch}`);
       return outputMatch;

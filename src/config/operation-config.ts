@@ -69,9 +69,9 @@ export class OperationConfig extends Config {
   private static async _initTasks(taskDataArray: TaskData[]): Promise<Task[]> {
     let taskCounter: number = 0;
     const taskObjArray = taskDataArray.map((taskData) => {
-      taskCounter++;
+      taskCounter += 1;
       const taskObj = new Task(taskData.call, taskData.args, taskData.name);
-      taskObj.name += '#' + taskCounter;
+      taskObj.name += `#${taskCounter}`;
       console.log(`Setup Task ${taskCounter}: ${taskObj.name}`);
       return taskObj;
     });
