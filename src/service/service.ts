@@ -79,7 +79,6 @@ export class Service {
         console.error(`ERROR: ${e}`);
       }
 
-
       const callStack = await import(callPath);
       const callArgsSub = await this._outputsSubstitution({ ...callArgs }, event);
 
@@ -106,10 +105,10 @@ export class Service {
       console.log(`[${event}]: args: ${argName}: ${callArgsData[argName]}`);
       if (Array.isArray(callArgsData[argName])) {
         for (let i = 0; i < callArgsData[argName].length; i++) {
-          (callArgsData[argName] as string[])[i] = await this._matchSubPattern((callArgsData[argName][i] as string), event);
+          (callArgsData[argName] as string[])[i] = await this._matchSubPattern(callArgsData[argName][i] as string, event);
         }
       } else {
-       (callArgsData[argName] as string) = await this._matchSubPattern((callArgsData[argName] as string), event);
+        (callArgsData[argName] as string) = await this._matchSubPattern(callArgsData[argName] as string, event);
       }
     }
     return callArgsData;

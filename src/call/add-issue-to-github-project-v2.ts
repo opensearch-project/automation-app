@@ -51,7 +51,7 @@ export default async function addIssueToGitHubProjectV2(
 
   // Verify triggered event
   if (!context.payload.label) {
-    app.log.error('Only \'issues.labeled\' event is supported on this call.')
+    app.log.error("Only 'issues.labeled' event is supported on this call.");
     return null;
   }
 
@@ -66,7 +66,7 @@ export default async function addIssueToGitHubProjectV2(
   const repoName = context.payload.repository.name;
   const issueNumber = context.payload.issue.number;
   const issueNodeId = context.payload.issue.node_id;
-  let itemId = null
+  let itemId = null;
 
   // Add to project
   try {
