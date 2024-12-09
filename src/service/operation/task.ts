@@ -7,11 +7,10 @@
  * compatible open source license.
  */
 
-import randomstring from 'randomstring';
 import { TaskArgData } from '../../config/types';
 
 export class Task {
-  private readonly _name: string; // uid
+  private _name: string; // uid
 
   private readonly _callName: string;
 
@@ -23,8 +22,14 @@ export class Task {
     const callArray = call.trim().split('@');
     [this._callName, this._callFunc] = callArray;
     this._callArgs = callArgs;
-    const namePostfix = randomstring.generate(8);
-    this._name = name ? `${name}#${namePostfix}` : `${this.callName}#${namePostfix}`;
+    this._name = name || this.callName;
+  }
+
+  public set name(taskName: string) {
+    if (!taskName || taskName.trim() === '') {
+      throw new Error('Task Name input cannot be empty');
+    }
+    this._name = taskName;
   }
 
   public get name(): string {

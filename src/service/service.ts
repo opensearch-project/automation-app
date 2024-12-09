@@ -15,6 +15,7 @@ import { Operation } from './operation/operation';
 import { Task } from './operation/task';
 import { ResourceConfig } from '../config/resource-config';
 import { OperationConfig } from '../config/operation-config';
+import { TaskArgData } from '../config/types';
 import { octokitAuth } from '../utility/probot/octokit';
 
 export class Service {
@@ -25,6 +26,11 @@ export class Service {
   private _operation: Operation;
 
   private _app: Probot;
+
+  // Map<eventName, Map<taskName, returnValue>>
+  private _outputs: Map<string, Map<string, any>>;
+
+  private readonly subPattern = /\$\{\{\s*(.*?)\s*\}\}/;
 
   constructor(name: string) {
     this._name = name;
@@ -55,6 +61,7 @@ export class Service {
     this._resource = await resConfigObj.initResource();
     const opConfigObj = new OperationConfig(operationConfigPath);
     this._operation = await opConfigObj.initOperation();
+    this._outputs = new Map<string, any>();
     this._registerEvents();
   }
 
@@ -63,10 +70,10 @@ export class Service {
       await promise; // Make sure tasks are completed in sequential orders
 
       const callPath = await realpath(`./bin/call/${task.callName}.js`);
-      const { callFunc } = task;
-      const { callArgs } = task;
+      const { name, callFunc, callArgs } = task;
 
-      console.log(`[${event}]: Verify call lib: ${callPath}`);
+      console.log(`[${event}]: Start call now: ${name}`);
+      console.log(`[${event}]: Check call lib: ${callPath}`);
       try {
         await access(callPath);
       } catch (e) {
@@ -74,9 +81,13 @@ export class Service {
       }
 
       const callStack = await import(callPath);
+      const callArgsSub = await this._outputsSubstitution({ ...callArgs }, event);
+
       if (callFunc === 'default') {
         console.log(`[${event}]: Call default function: [${callStack.default.name}]`);
-        await callStack.default(this.app, context, this.resource, { ...callArgs });
+        const resultDefault = await callStack.default(this.app, context, this.resource, { ...callArgsSub });
+        this._outputs.get(event)?.set(name, resultDefault);
+        console.log(this._outputs.get(event));
       } else {
         console.log(callStack);
         const callFuncCustom = callStack[callFunc];
@@ -84,14 +95,48 @@ export class Service {
         if (!(typeof callFuncCustom === 'function')) {
           throw new Error(`[${event}]: ${callFuncCustom} is not a function, please verify in ${callPath}`);
         }
-        await callFuncCustom(this.app, context, this.resource, { ...callArgs });
+        this._outputs.get(event)?.set(name, await callFuncCustom(this.app, context, this.resource, { ...callArgsSub }));
       }
     }, Promise.resolve());
   }
 
+  private async _outputsSubstitution(callArgs: TaskArgData, event: string): Promise<TaskArgData> {
+    console.log(`[${event}]: Call with args:`);
+
+    const callArgsTemp = callArgs;
+    const argEntries = Object.entries(callArgsTemp);
+
+    await Promise.all(
+      argEntries.map(async ([argName, argValue]) => {
+        console.log(`[${event}]: args: ${argName}: ${argValue}`);
+
+        // Overwrite callArgsTemp if user choose to substitute value with outputs from previous task ${{ outputs.<TaskName>#<TaskOrder> }}
+        if (Array.isArray(argValue)) {
+          // string[]
+          callArgsTemp[argName] = await Promise.all(argValue.map(async (argValueItem) => this._matchSubPattern(argValueItem as string, event)));
+        } else {
+          // string
+          callArgsTemp[argName] = await this._matchSubPattern(argValue as string, event);
+        }
+      }),
+    );
+    return callArgsTemp;
+  }
+
+  private async _matchSubPattern(callArgsValue: string, event: string): Promise<string> {
+    const match = callArgsValue.match(this.subPattern);
+    if (match) {
+      // If user substitution pattern ${{ outputs.<TaskName>#<TaskOrder> }} found in operation config
+      // Return substituion value based on return value saved in outputs
+      const outputMatch = this._outputs.get(event)?.get(match[1].replace('outputs.', ''));
+      console.log(`StrSub: ${callArgsValue}, Match: ${match[1]}, Output: ${outputMatch}`);
+      return outputMatch;
+    }
+    return callArgsValue;
+  }
+
   private async _registerEvents(): Promise<void> {
-    const { events } = this.operation;
-    const { tasks } = this.operation;
+    const { events, tasks } = this.operation;
     console.log(`Evaluate events: [${events}]`);
     if (!events) {
       throw new Error('No events defined in the operation!');
@@ -102,6 +147,7 @@ export class Service {
 
     events.forEach((event) => {
       console.log(`Register event: "${event}"`);
+      this._outputs.set(event, new Map<string, any>());
       if (event === 'all') {
         console.warn('WARNING! All events will be listened based on the config!');
         this._app.onAny(async (context) => {
