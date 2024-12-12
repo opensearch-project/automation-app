@@ -8,7 +8,7 @@
  */
 
 import addIssueToGitHubProjectV2, { AddIssueToGitHubProjectV2Params } from '../../src/call/add-issue-to-github-project-v2';
-import { validateProjects } from '../../src/call/add-issue-to-github-project-v2';
+import { validateProject } from '../../src/call/add-issue-to-github-project-v2';
 import { Probot, Logger } from 'probot';
 
 // Mock mutationId return
@@ -59,7 +59,7 @@ describe('addIssueToGitHubProjectV2Functions', () => {
 
     params = {
       labels: ['Meta', 'RFC'],
-      projects: ['test-org/222'],
+      project: 'test-org/222',
     };
   });
 
@@ -71,7 +71,7 @@ describe('addIssueToGitHubProjectV2Functions', () => {
     it('should print error if validateProjects returns false', async () => {
       resource.organizations.get('test-org').projects.delete(222);
 
-      const result = await validateProjects(app, resource, params.projects);
+      const result = await validateProject(app, resource, params.project);
 
       expect(app.log.error).toHaveBeenCalledWith('Project 222 in organization test-org is not defined in resource config!');
       expect(result).toBe(false);
@@ -99,7 +99,7 @@ describe('addIssueToGitHubProjectV2Functions', () => {
       expect(context.octokit.graphql).not.toHaveBeenCalled();
     });
 
-    it('should add context issue to project when conditions are met', async () => {
+    it('should add issue to project when conditions are met', async () => {
       const graphQLResponse = {
         addProjectV2ItemById: { item: { id: 'new-item-id' } },
       };
