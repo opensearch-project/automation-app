@@ -126,3 +126,4 @@ organizations:
       - name: ux
       - name: piped-processing-language
       - name: technical-steering
+      - name: opensearch-remote-metadata-sdk
