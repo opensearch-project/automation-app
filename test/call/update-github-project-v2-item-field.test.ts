@@ -150,6 +150,15 @@ describe('updateGithubProjectV2ItemFieldFunctions', () => {
       expect(result).toBe(null);
     });
 
+    it('should print error and return null if graphql failed the call', async () => {
+      context.octokit.graphql.mockRejectedValue(new Error('GraphQL request failed'));
+
+      const result = await updateGithubProjectV2ItemField(app, context, resource, params);
+
+      expect(app.log.error).toHaveBeenCalledWith('ERROR: Error: GraphQL request failed');
+      expect(result).toBe(null);
+    });
+
     it('should update field value when conditions are met', async () => {
       const graphQLResponse = {
         updateProjectV2ItemFieldValue: { projectV2Item: { id: 'update-item-id' } },
