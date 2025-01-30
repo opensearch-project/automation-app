@@ -36,7 +36,7 @@ jobs:
         run: npm run junit
       - name: Upload results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload junit test results to Codecov
