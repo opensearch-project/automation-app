@@ -1,6 +1,6 @@
 {
   "name": "opensearch-automation-app",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "An Automation App that handles all your GitHub Repository Activities",
   "author": "Peter Zhu",
   "homepage": "https://github.com/opensearch-project/automation-app",
