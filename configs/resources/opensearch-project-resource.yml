@@ -5,7 +5,7 @@ organizations:
       - name: 'OpenSearch Roadmap'
         number: 206
         fields:
-          - name: 'OpenSearch Roadmap'
+          - name: 'Roadmap'
     repositories:
       - name: opensearch-api-specification
       - name: OpenSearch
