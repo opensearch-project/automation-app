@@ -127,3 +127,4 @@ organizations:
       - name: piped-processing-language
       - name: technical-steering
       - name: opensearch-remote-metadata-sdk
+      - name: opensearch-traffic-gateway
