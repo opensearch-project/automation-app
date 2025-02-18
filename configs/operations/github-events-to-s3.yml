@@ -5,5 +5,12 @@ events:
   - all
 
 tasks:
+  - name: Github Label Canary Monitor
+    call: github-label-canary-monitor@default
+    args:
+      nameSpace: GitHubLabelCanary
+      metricName: AutomationApp_EventDataLake
+      value: '1'
+      unit: Count
   - name: Github Events To S3 Operation
     call: github-events-to-s3@default
