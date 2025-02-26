@@ -128,3 +128,4 @@ organizations:
       - name: technical-steering
       - name: opensearch-remote-metadata-sdk
       - name: opensearch-traffic-gateway
+      - name: remote-vector-index-builder
