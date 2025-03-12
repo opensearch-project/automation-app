@@ -130,3 +130,4 @@ organizations:
       - name: opensearch-traffic-gateway
       - name: remote-vector-index-builder
       - name: opensearch-jvector
+      - name: opensearch-protobufs
