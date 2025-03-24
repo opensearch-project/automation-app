@@ -63,7 +63,7 @@ export default async function githubLabelCanaryMonitor(
           app.log.error(`Error Publishing CloudWatch metric for monitoring : ${error}`);
         }
       }
-      return; // In the future, add `exit` right here to prevent subsequent tasks from running
+      // In the future, add `exit` right here to prevent subsequent tasks from running
     }
   }
 }

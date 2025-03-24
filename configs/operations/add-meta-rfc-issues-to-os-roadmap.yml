@@ -5,6 +5,13 @@ events:
   - issues.labeled
 
 tasks:
+  - name: Github Label Canary Monitor
+    call: github-label-canary-monitor@default
+    args:
+      nameSpace: GitHubLabelCanary
+      metricName: AutomationApp_EventDataLake
+      value: '1'
+      unit: Count
   - name: Add issue to OpenSearch Project Roadmap
     call: add-issue-to-github-project-v2@default
     args:
