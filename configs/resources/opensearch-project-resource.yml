@@ -131,3 +131,5 @@ organizations:
       - name: remote-vector-index-builder
       - name: opensearch-jvector
       - name: opensearch-protobufs
+      - name: search-relevance
+      - name: opensearch-mcp-server-py
