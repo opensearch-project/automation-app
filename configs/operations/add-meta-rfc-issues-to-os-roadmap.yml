@@ -22,7 +22,7 @@ tasks:
         - Roadmap:Observability/Log Analytics
         - Roadmap:Vector Database/GenAI
         - Roadmap:Ease of Use
-        - Roadmap:Search and ML
+        - Roadmap:Search
       project: opensearch-project/206
 
   - name: Update item field value in OpenSearch Project Roadmap
