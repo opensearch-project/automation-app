@@ -1,0 +1,5 @@
+---
+organizations:
+  - name: opensearch-project
+    repositories:
+      - name: OpenSearch
