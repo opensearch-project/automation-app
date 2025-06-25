@@ -1,0 +1,18 @@
+---
+name: Add Labels to Issues and PR in OS Core Repository
+
+events:
+  - issues.opened
+  - issues.reopened
+  - issues.edited
+  - pull_request.opened
+  - pull_request.reopened
+  - pull_request.edited
+
+tasks:
+  - name: Add lucene label based on provided keyword
+    call: label-by-keyword@default
+    args:
+      keyword: 'lucene'
+      keywordIgnoreCase: 'true'
+      label: 'lucene'

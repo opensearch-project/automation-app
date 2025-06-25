@@ -1,6 +1,6 @@
 {
   "name": "opensearch-automation-app",
-  "version": "0.3.11",
+  "version": "0.4.0",
   "description": "An Automation App that handles all your GitHub Repository Activities",
   "author": "Peter Zhu",
   "homepage": "https://github.com/opensearch-project/automation-app",
@@ -13,7 +13,7 @@
     "automation-app"
   ],
   "scripts": {
-    "build": "npm install && npm run format-dryrun && npm run clean && npm run lint && npm run compile",
+    "build": "npm install && npm run clean && npm run lint && npm run format && npm run compile",
     "postbuild": "npm run test",
     "compile": "tsc",
     "dev": "npm run clean && npm run compile && probot run ./bin/app.js",
