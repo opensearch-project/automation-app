@@ -16,3 +16,11 @@ tasks:
       keyword: 'lucene'
       keywordIgnoreCase: 'true'
       label: 'lucene'
+      llmPrompt: |
+        Given the following text, decide if it is mainly discussing Apache Lucene itself — meaning its APIs,
+        versions, features, usage, configuration, or performance — rather than just containing logs, stack
+        traces, or incidental mentions of Lucene classes inside another system (like OpenSearch).
+        Respond with a single word: "true" if the text is mainly about Apache Lucene itself, or "false"
+        otherwise. Do not say anything else.
+      llmProvider: 'ollama'
+      llmModel: 'qwen2.5:3b'
