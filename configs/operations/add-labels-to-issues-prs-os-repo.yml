@@ -23,4 +23,4 @@ tasks:
         Respond with a single word: "true" if the text is mainly about Apache Lucene itself, or "false"
         otherwise. Do not say anything else.
       llmProvider: 'bedrock'
-      llmModel: 'us.anthropic.claude-3-5-haiku-20241022-v1:0'
+      llmModel: 'us.anthropic.claude-haiku-4-5-20251001-v1:0'
