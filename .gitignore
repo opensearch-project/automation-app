@@ -8,8 +8,6 @@ coverage
 junit.xml
 bin
 temp/*
-
-# Intellij files
 .idea/*
-
 .DS_Store
+CLAUDE.md
