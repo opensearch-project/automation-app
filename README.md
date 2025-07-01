@@ -14,6 +14,10 @@
 
 This repository hosts the source code of an automation app to handle the daily activities of your GitHub Repository.
 
+## Dependencies
+
+NodeJS version 20+.
+
 ## Project Resources
 
 The automation app utilizes the [Probot](https://probot.github.io/) framework and [Octokit](https://docs.github.com/en/rest/using-the-rest-api/libraries-for-the-rest-api?apiVersion=2022-11-28) library to perform user-defined operations on top of the resources within GitHub. See [configs](configs) yaml for more information.
