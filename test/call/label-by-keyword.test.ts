@@ -10,6 +10,7 @@
 import labelByKeyword, { LabelByKeywordParams } from '../../src/call/label-by-keyword';
 import { Probot, Logger } from 'probot';
 import { ollamaGenerate } from '../../src/utility/llm/ollama-client';
+import { bedrockInvoke } from '../../src/utility/llm/bedrock-client';
 
 // Mock mutationId return
 jest.mock('crypto', () => ({
@@ -25,6 +26,11 @@ jest.mock('../../src/utility/llm/ollama-client', () => ({
   isOllamaRunning: jest.fn().mockResolvedValue(true),
   ollamaPull: jest.fn().mockResolvedValue(undefined),
   ollamaList: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../../src/utility/llm/bedrock-client', () => ({
+  bedrockInvoke: jest.fn().mockResolvedValue('true'),
+  bedrockClient: {},
 }));
 
 describe('labelByKeywordFunctions', () => {
@@ -171,7 +177,7 @@ describe('labelByKeywordFunctions', () => {
       });
     });
 
-    it('Use LLM for semantic matching when llmPrompt is provided', async () => {
+    it('Use ollama for semantic matching when llmPrompt is provided', async () => {
       const params = {
         keyword: 'TEST',
         keywordIgnoreCase: 'true',
@@ -185,7 +191,7 @@ describe('labelByKeywordFunctions', () => {
 
       expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'true'");
       expect(ollamaGenerate).toHaveBeenCalledWith('Title: test-title\nBody: test-body. Is this related to testing?', 'qwen2.5:3b');
-      expect(app.log.info).toHaveBeenCalledWith('Keyword semantic matching through llm analysis: true');
+      expect(app.log.info).toHaveBeenCalledWith("Keyword semantic matching through llm analysis (ollama): 'true'");
       expect(context.octokit.rest.issues.addLabels).toHaveBeenCalledWith({
         owner: 'test-org',
         repo: 'test-repo',
@@ -194,7 +200,34 @@ describe('labelByKeywordFunctions', () => {
       });
     });
 
-    it('Skip label update when LLM returns false', async () => {
+    it('Use LLM bedrock for semantic matching when llmPrompt is provided', async () => {
+      const params = {
+        keyword: 'TEST',
+        keywordIgnoreCase: 'true',
+        llmPrompt: 'Is this related to testing?',
+        llmProvider: 'bedrock',
+        llmModel: 'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+        label: 'test',
+      };
+
+      await labelByKeyword(app, context, resource, params);
+
+      expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'true'");
+      expect(bedrockInvoke).toHaveBeenCalledWith(
+        'Title: test-title\nBody: test-body. Is this related to testing?',
+        'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+        3,
+      );
+      expect(app.log.info).toHaveBeenCalledWith("Keyword semantic matching through llm analysis (bedrock): 'true'");
+      expect(context.octokit.rest.issues.addLabels).toHaveBeenCalledWith({
+        owner: 'test-org',
+        repo: 'test-repo',
+        issue_number: 111,
+        labels: ['test'],
+      });
+    });
+
+    it('Skip label update when ollama returns false', async () => {
       (ollamaGenerate as jest.Mock).mockResolvedValueOnce('false');
 
       const params = {
@@ -209,7 +242,31 @@ describe('labelByKeywordFunctions', () => {
       await labelByKeyword(app, context, resource, params);
 
       expect(ollamaGenerate).toHaveBeenCalledWith('Title: test-title\nBody: test-body. Is this related to testing?', 'qwen2.5:3b');
-      expect(app.log.info).toHaveBeenCalledWith('Keyword semantic matching through llm analysis: false');
+      expect(app.log.info).toHaveBeenCalledWith("Keyword semantic matching through llm analysis (ollama): 'false'");
+      expect(app.log.info).toHaveBeenCalledWith('Ignore issue update: test-org/test-repo/111');
+      expect(context.octokit.rest.issues.addLabels).not.toHaveBeenCalled();
+    });
+
+    it('Skip label update when bedrock returns false', async () => {
+      (bedrockInvoke as jest.Mock).mockResolvedValueOnce('false');
+
+      const params = {
+        keyword: 'TEST',
+        keywordIgnoreCase: 'true',
+        llmPrompt: 'Is this related to testing?',
+        llmProvider: 'bedrock',
+        llmModel: 'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+        label: 'test',
+      };
+
+      await labelByKeyword(app, context, resource, params);
+
+      expect(bedrockInvoke).toHaveBeenCalledWith(
+        'Title: test-title\nBody: test-body. Is this related to testing?',
+        'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+        3,
+      );
+      expect(app.log.info).toHaveBeenCalledWith("Keyword semantic matching through llm analysis (bedrock): 'false'");
       expect(app.log.info).toHaveBeenCalledWith('Ignore issue update: test-org/test-repo/111');
       expect(context.octokit.rest.issues.addLabels).not.toHaveBeenCalled();
     });
@@ -250,6 +307,67 @@ describe('labelByKeywordFunctions', () => {
       expect(app.log.error).toHaveBeenCalledWith('ERROR: Error: Ollama error');
       expect(app.log.warn).toHaveBeenCalledWith('Error in ollama, fallback to simple text matching now ...');
       expect(app.log.info).toHaveBeenCalledWith('Updating label on: test-org/test-repo/111');
+      expect(context.octokit.rest.issues.addLabels).toHaveBeenCalled();
+    });
+
+    it('Falls back to simple matching when bedrock throws an error', async () => {
+      (bedrockInvoke as jest.Mock).mockRejectedValueOnce(new Error('Bedrock error'));
+
+      const params = {
+        keyword: 'TEST',
+        keywordIgnoreCase: 'true',
+        llmPrompt: 'Is this related to testing?',
+        llmProvider: 'bedrock',
+        llmModel: 'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+        label: 'test',
+      };
+
+      await labelByKeyword(app, context, resource, params);
+
+      expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'true'");
+      expect(app.log.error).toHaveBeenCalledWith('ERROR: Error: Bedrock error');
+      expect(app.log.warn).toHaveBeenCalledWith('Error in bedrock, fallback to simple text matching now ...');
+      expect(app.log.info).toHaveBeenCalledWith('Updating label on: test-org/test-repo/111');
+      expect(context.octokit.rest.issues.addLabels).toHaveBeenCalled();
+    });
+
+    it('Uses default modelId when not provided for ollama', async () => {
+      const params = {
+        keyword: 'TEST',
+        keywordIgnoreCase: 'true',
+        llmPrompt: 'Is this related to testing?',
+        llmProvider: 'ollama',
+        llmModel: '',
+        label: 'test',
+      };
+
+      await labelByKeyword(app, context, resource, params);
+
+      expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'true'");
+      expect(ollamaGenerate).toHaveBeenCalledWith('Title: test-title\nBody: test-body. Is this related to testing?', 'qwen2.5:3b');
+      expect(app.log.info).toHaveBeenCalledWith("Keyword semantic matching through llm analysis (ollama): 'true'");
+      expect(context.octokit.rest.issues.addLabels).toHaveBeenCalled();
+    });
+
+    it('Uses default modelId when not provided for bedrock', async () => {
+      const params = {
+        keyword: 'TEST',
+        keywordIgnoreCase: 'true',
+        llmPrompt: 'Is this related to testing?',
+        llmProvider: 'bedrock',
+        llmModel: '',
+        label: 'test',
+      };
+
+      await labelByKeyword(app, context, resource, params);
+
+      expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'true'");
+      expect(bedrockInvoke).toHaveBeenCalledWith(
+        'Title: test-title\nBody: test-body. Is this related to testing?',
+        'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+        3,
+      );
+      expect(app.log.info).toHaveBeenCalledWith("Keyword semantic matching through llm analysis (bedrock): 'true'");
       expect(context.octokit.rest.issues.addLabels).toHaveBeenCalled();
     });
   });
