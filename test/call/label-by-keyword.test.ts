@@ -9,6 +9,7 @@
 
 import labelByKeyword, { LabelByKeywordParams } from '../../src/call/label-by-keyword';
 import { Probot, Logger } from 'probot';
+import { ollamaGenerate } from '../../src/utility/llm/ollama-client';
 
 // Mock mutationId return
 jest.mock('crypto', () => ({
@@ -17,6 +18,13 @@ jest.mock('crypto', () => ({
       toString: jest.fn().mockReturnValue('mutation-id'),
     };
   }),
+}));
+
+jest.mock('../../src/utility/llm/ollama-client', () => ({
+  ollamaGenerate: jest.fn().mockResolvedValue('true'),
+  isOllamaRunning: jest.fn().mockResolvedValue(true),
+  ollamaPull: jest.fn().mockResolvedValue(undefined),
+  ollamaList: jest.fn().mockResolvedValue(undefined),
 }));
 
 describe('labelByKeywordFunctions', () => {
@@ -30,6 +38,7 @@ describe('labelByKeywordFunctions', () => {
     app.log = {
       info: jest.fn(),
       error: jest.fn(),
+      warn: jest.fn(),
     } as unknown as Logger;
 
     context = {
@@ -65,6 +74,9 @@ describe('labelByKeywordFunctions', () => {
     params = {
       keyword: 'TEST',
       keywordIgnoreCase: 'true',
+      llmPrompt: '',
+      llmProvider: 'ollama',
+      llmModel: 'qwen2.5:3b',
       label: 'test',
     };
   });
@@ -78,32 +90,34 @@ describe('labelByKeywordFunctions', () => {
       await labelByKeyword(app, context, resource, {
         keyword: '',
         keywordIgnoreCase: '',
+        llmPrompt: '',
+        llmProvider: '',
+        llmModel: '',
         label: '',
       });
 
       expect(app.log.error).toHaveBeenCalledWith("Invalid input, keyword: '', label: ''");
     });
 
-    it('Set keywordIgnoreCase to true by default if user does not define', async () => {
+    it('Set keywordIgnoreCase to false by default if user does not define', async () => {
       await labelByKeyword(app, context, resource, {
         keyword: 'Test',
         keywordIgnoreCase: '',
+        llmPrompt: '',
+        llmProvider: '',
+        llmModel: '',
         label: 'test',
       });
 
-      expect(app.log.info).toHaveBeenCalledWith("Keyword 'Test' found, keywordIgnoreCase = 'true', adding label 'test'");
-      expect(context.octokit.rest.issues.addLabels).toHaveBeenCalledWith({
-        owner: 'test-org',
-        repo: 'test-repo',
-        issue_number: 111,
-        labels: ['test'],
-      });
+      expect(app.log.info).toHaveBeenCalledWith('keyword Test not found on: test-org/test-repo/111');
     });
 
     it('Normal calling with defined parameters for all', async () => {
       await labelByKeyword(app, context, resource, params);
 
-      expect(app.log.info).toHaveBeenCalledWith("Keyword 'TEST' found, keywordIgnoreCase = 'true', adding label 'test'");
+      expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'false'");
+      expect(app.log.info).toHaveBeenCalledWith('Updating label on: test-org/test-repo/111');
+      expect(context.octokit.rest.issues.addLabels).toHaveBeenCalledTimes(1);
       expect(context.octokit.rest.issues.addLabels).toHaveBeenCalledWith({
         owner: 'test-org',
         repo: 'test-repo',
@@ -135,6 +149,8 @@ describe('labelByKeywordFunctions', () => {
       };
       await labelByKeyword(app, context, resource, params);
 
+      expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'false'");
+      expect(app.log.info).toHaveBeenCalledWith('Updating label on: test-org/test-repo/111');
       expect(app.log.error).toHaveBeenCalledWith('ERROR: Error: GitHub API failed');
     });
 
@@ -142,15 +158,99 @@ describe('labelByKeywordFunctions', () => {
       context.name = 'pull_request';
       delete context.payload.issue;
 
-      (context.payload.pull_request = { number: 111, node_id: 'issue-111-nodeid', title: 'test-title', body: 'test-body' }),
-        await labelByKeyword(app, context, resource, params);
+      context.payload.pull_request = { number: 111, node_id: 'issue-111-nodeid', title: 'test-title', body: 'test-body' };
+      await labelByKeyword(app, context, resource, params);
 
+      expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'false'");
+      expect(app.log.info).toHaveBeenCalledWith('Updating label on: test-org/test-repo/111');
       expect(context.octokit.rest.issues.addLabels).toHaveBeenCalledWith({
         owner: 'test-org',
         repo: 'test-repo',
         issue_number: 111,
         labels: ['test'],
       });
+    });
+
+    it('Use LLM for semantic matching when llmPrompt is provided', async () => {
+      const params = {
+        keyword: 'TEST',
+        keywordIgnoreCase: 'true',
+        llmPrompt: 'Is this related to testing?',
+        llmProvider: 'ollama',
+        llmModel: 'qwen2.5:3b',
+        label: 'test',
+      };
+
+      await labelByKeyword(app, context, resource, params);
+
+      expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'true'");
+      expect(ollamaGenerate).toHaveBeenCalledWith('Title: test-title\nBody: test-body. Is this related to testing?', 'qwen2.5:3b');
+      expect(app.log.info).toHaveBeenCalledWith('Keyword semantic matching through llm analysis: true');
+      expect(context.octokit.rest.issues.addLabels).toHaveBeenCalledWith({
+        owner: 'test-org',
+        repo: 'test-repo',
+        issue_number: 111,
+        labels: ['test'],
+      });
+    });
+
+    it('Skip label update when LLM returns false', async () => {
+      (ollamaGenerate as jest.Mock).mockResolvedValueOnce('false');
+
+      const params = {
+        keyword: 'TEST',
+        keywordIgnoreCase: 'true',
+        llmPrompt: 'Is this related to testing?',
+        llmProvider: 'ollama',
+        llmModel: 'qwen2.5:3b',
+        label: 'test',
+      };
+
+      await labelByKeyword(app, context, resource, params);
+
+      expect(ollamaGenerate).toHaveBeenCalledWith('Title: test-title\nBody: test-body. Is this related to testing?', 'qwen2.5:3b');
+      expect(app.log.info).toHaveBeenCalledWith('Keyword semantic matching through llm analysis: false');
+      expect(app.log.info).toHaveBeenCalledWith('Ignore issue update: test-org/test-repo/111');
+      expect(context.octokit.rest.issues.addLabels).not.toHaveBeenCalled();
+    });
+
+    it('Falls back to simple matching when LLM provider is not supported', async () => {
+      const params = {
+        keyword: 'TEST',
+        keywordIgnoreCase: 'true',
+        llmPrompt: 'Is this related to testing?',
+        llmProvider: 'hellollama',
+        llmModel: 'qwen2.5:3b',
+        label: 'test',
+      };
+
+      await labelByKeyword(app, context, resource, params);
+
+      expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'true'");
+      expect(app.log.warn).toHaveBeenCalledWith('Not supporting hellollama as llm provider, fallback to simple text matching now ...');
+      expect(app.log.info).toHaveBeenCalledWith('Updating label on: test-org/test-repo/111');
+      expect(context.octokit.rest.issues.addLabels).toHaveBeenCalled();
+    });
+
+    it('Falls back to simple matching when ollama throws an error', async () => {
+      (ollamaGenerate as jest.Mock).mockRejectedValueOnce(new Error('Ollama error'));
+
+      const params = {
+        keyword: 'TEST',
+        keywordIgnoreCase: 'true',
+        llmPrompt: 'Is this related to testing?',
+        llmProvider: 'ollama',
+        llmModel: 'qwen2.5:3b',
+        label: 'test',
+      };
+
+      await labelByKeyword(app, context, resource, params);
+
+      expect(app.log.info).toHaveBeenCalledWith("keyword 'test' found, keywordIgnoreCase = 'true', label = 'test', useLLM = 'true'");
+      expect(app.log.error).toHaveBeenCalledWith('ERROR: Error: Ollama error');
+      expect(app.log.warn).toHaveBeenCalledWith('Error in ollama, fallback to simple text matching now ...');
+      expect(app.log.info).toHaveBeenCalledWith('Updating label on: test-org/test-repo/111');
+      expect(context.octokit.rest.issues.addLabels).toHaveBeenCalled();
     });
   });
 });
