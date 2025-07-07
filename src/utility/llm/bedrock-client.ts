@@ -11,7 +11,7 @@ import { BedrockRuntimeClient, ConverseCommand, ConverseCommandInput } from '@aw
 
 export const bedrockClient = new BedrockRuntimeClient({ region: process.env.AWS_REGION_NAME });
 
-export async function bedrockInvoke(
+export async function bedrockConverse(
   promptText: string,
   modelId: string = 'us.anthropic.claude-3-5-haiku-20241022-v1:0',
   maxTokenSize: number = 4000,
@@ -41,7 +41,7 @@ export async function bedrockInvoke(
   if (content && typeof content === 'object' && 'text' in content) {
     textResponse = content.text;
   } else {
-    textResponse = 'NO RESPONSE';
+    textResponse = 'ERROR_RESPONSE';
   }
 
   return textResponse;

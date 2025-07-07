@@ -22,7 +22,7 @@ import { Probot } from 'probot';
 import { Resource } from '../service/resource/resource';
 import { validateResourceConfig } from '../utility/verification/verify-resource';
 import { ollamaGenerate } from '../utility/llm/ollama-client';
-import { bedrockInvoke } from '../utility/llm/bedrock-client';
+import { bedrockConverse } from '../utility/llm/bedrock-client';
 
 export interface LabelByKeywordParams {
   keyword: string;
@@ -83,7 +83,7 @@ export default async function labelByKeyword(
             .toLowerCase();
           app.log.info(`Keyword semantic matching through llm analysis (ollama): '${matchResponse}'`);
         } else if (llmProviderProcess === 'bedrock') {
-          matchResponse = (await bedrockInvoke(`${text}. ${llmPrompt}`, llmModelProcess, 3))
+          matchResponse = (await bedrockConverse(`${text}. ${llmPrompt}`, llmModelProcess, 3, 'us-east-1'))
             .replaceAll(/[^a-zA-Z]/g, '')
             .trim()
             .toLowerCase();
