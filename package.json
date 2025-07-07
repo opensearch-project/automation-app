@@ -17,7 +17,7 @@
     "postbuild": "npm run test",
     "compile": "tsc",
     "dev": "npm run clean && npm run compile && probot run ./bin/app.js",
-    "start": "npm run build && probot run ./bin/app.js",
+    "start": "npm install && npm run clean && npm run compile && probot run ./bin/app.js",
     "clean": "rm -rf ./bin/*",
     "format": "prettier --write src/**/*.ts test/**/*.ts configs/**/*.yml",
     "format-dryrun": "prettier --check src/**/*.ts test/**/*.ts configs/**/*.yml",
