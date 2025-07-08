@@ -1,6 +1,6 @@
 {
   "name": "opensearch-automation-app",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "An Automation App that handles all your GitHub Repository Activities",
   "author": "Peter Zhu",
   "homepage": "https://github.com/opensearch-project/automation-app",
@@ -17,7 +17,7 @@
     "postbuild": "npm run test",
     "compile": "tsc",
     "dev": "npm run clean && npm run compile && probot run ./bin/app.js",
-    "start": "npm run build && probot run ./bin/app.js",
+    "start": "npm install && npm run clean && npm run compile && probot run ./bin/app.js",
     "clean": "rm -rf ./bin/*",
     "format": "prettier --write src/**/*.ts test/**/*.ts configs/**/*.yml",
     "format-dryrun": "prettier --check src/**/*.ts test/**/*.ts configs/**/*.yml",
@@ -26,6 +26,7 @@
     "junit": "jest --reporters=jest-junit"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.840.0",
     "@aws-sdk/client-cloudwatch": "^3.664.0",
     "@aws-sdk/client-opensearch": "^3.658.1",
     "@aws-sdk/client-s3": "^3.666.0",

@@ -13,14 +13,16 @@
 //   - keyword           : (string) the text string to be used as keyword, required parameter
 //   - keywordIgnoreCase : (string) whether or not to ignore cases in keyword matching, default is 'false'
 //   - llmPrompt         : (string) the prompt send to llm to improve semantic matching after simple text match of the keyword, default to '' which disables it
-//   - llmProvider       : (string) which llm provider do you choose to use to process llmPrompt, default to 'ollama', supports 'ollama'
-//   - llmModel          : (string) which llm model do you choose to use to process llmPrompt with llmProvider, default to 'qwen2.5:3b' for 'ollama' llmProvider
+//   - llmProvider       : (string) which llm provider do you choose to use to process llmPrompt, default to 'ollama', supports 'ollama', 'bedrock'
+//   - llmModel          : (string) which llm model do you choose to use to process llmPrompt with llmProvider,
+//                       :          default to 'qwen2.5:3b' for 'ollama', and 'us.anthropic.claude-3-5-haiku-20241022-v1:0' for 'bedrock'
 //   - label             : (string) the name of the label already created in corresponding repository
 
 import { Probot } from 'probot';
 import { Resource } from '../service/resource/resource';
 import { validateResourceConfig } from '../utility/verification/verify-resource';
 import { ollamaGenerate } from '../utility/llm/ollama-client';
+import { bedrockConverse } from '../utility/llm/bedrock-client';
 
 export interface LabelByKeywordParams {
   keyword: string;
@@ -47,7 +49,7 @@ export default async function labelByKeyword(
   const keywordIgnoreCaseProcess = keywordIgnoreCase?.trim() || 'false';
   const keywordProcess = keywordIgnoreCaseProcess === 'true' ? keyword.trim().toLowerCase() : keyword.trim();
   const llmProviderProcess = llmProvider?.trim() || 'ollama';
-  const llmModelProcess = llmModel?.trim() || 'qwen2.5:3b';
+  const llmModelProcess = llmModel?.trim() || (llmProvider === 'ollama' ? 'qwen2.5:3b' : 'us.anthropic.claude-3-5-haiku-20241022-v1:0');
   const labelProcess = label.trim();
 
   const eventName = String(context.name);
@@ -73,20 +75,26 @@ export default async function labelByKeyword(
     app.log.info(`keyword '${keywordProcess}' found, keywordIgnoreCase = '${keywordIgnoreCaseProcess}', label = '${labelProcess}', useLLM = '${useLLM}'`);
 
     if (useLLM) {
-      if (llmProviderProcess === 'ollama') {
-        try {
+      try {
+        if (llmProviderProcess === 'ollama') {
           matchResponse = (await ollamaGenerate(`${text}. ${llmPrompt}`, llmModelProcess))
             .replaceAll(/[^a-zA-Z]/g, '')
             .trim()
             .toLowerCase();
-        } catch (e) {
-          app.log.error(`ERROR: ${e}`);
-          app.log.warn('Error in ollama, fallback to simple text matching now ...');
+          app.log.info(`Keyword semantic matching through llm analysis (ollama): '${matchResponse}'`);
+        } else if (llmProviderProcess === 'bedrock') {
+          matchResponse = (await bedrockConverse(`${text}. ${llmPrompt}`, llmModelProcess, 3, 'us-east-1'))
+            .replaceAll(/[^a-zA-Z]/g, '')
+            .trim()
+            .toLowerCase();
+          app.log.info(`Keyword semantic matching through llm analysis (bedrock): '${matchResponse}'`);
+        } else {
+          app.log.warn(`Not supporting ${llmProviderProcess} as llm provider, fallback to simple text matching now ...`);
           matchResponse = 'true';
         }
-        app.log.info(`Keyword semantic matching through llm analysis: ${matchResponse}`);
-      } else {
-        app.log.warn(`Not supporting ${llmProviderProcess} as llm provider, fallback to simple text matching now ...`);
+      } catch (e) {
+        app.log.error(`ERROR: ${e}`);
+        app.log.warn(`Error in ${llmProviderProcess}, fallback to simple text matching now ...`);
         matchResponse = 'true';
       }
     }
