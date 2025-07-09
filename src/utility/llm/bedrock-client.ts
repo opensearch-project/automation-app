@@ -9,7 +9,7 @@
 
 import { BedrockRuntimeClient, ConverseCommand, ConverseCommandInput } from '@aws-sdk/client-bedrock-runtime';
 
-export const bedrockClient = new BedrockRuntimeClient({ region: process.env.AWS_REGION_NAME });
+export const bedrockClient = new BedrockRuntimeClient({ region: process.env.AWS_REGION_NAME || 'us-east-1' });
 
 export async function bedrockConverse(
   promptText: string,
