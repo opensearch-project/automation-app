@@ -133,3 +133,5 @@ organizations:
       - name: opensearch-protobufs
       - name: search-relevance
       - name: opensearch-mcp-server-py
+      - name: dashboards-investigation
+      - name: opensearch-prometheus-exporter
