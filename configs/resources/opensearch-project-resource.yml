@@ -135,3 +135,5 @@ organizations:
       - name: opensearch-mcp-server-py
       - name: dashboards-investigation
       - name: opensearch-prometheus-exporter
+      - name: cluster-etcd
+      - name: oscar-ai-bot
