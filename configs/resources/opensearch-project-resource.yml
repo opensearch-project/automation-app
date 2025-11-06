@@ -137,3 +137,4 @@ organizations:
       - name: opensearch-prometheus-exporter
       - name: cluster-etcd
       - name: oscar-ai-bot
+      - name: dashboards-traces
