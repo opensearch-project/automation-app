@@ -138,3 +138,4 @@ organizations:
       - name: cluster-etcd
       - name: oscar-ai-bot
       - name: dashboards-traces
+      - name: opensearch-olap
