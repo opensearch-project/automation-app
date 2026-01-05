@@ -68,6 +68,6 @@
     "typescript-eslint": "^8.5.0"
   },
   "engines": {
-    "node": ">= 18"
+    "node": ">= 18 <25"
   }
 }
