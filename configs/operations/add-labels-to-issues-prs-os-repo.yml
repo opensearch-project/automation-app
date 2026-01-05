@@ -17,15 +17,12 @@ tasks:
       keywordIgnoreCase: 'true'
       label: 'lucene'
       llmPrompt: |
-
         Given the above text, determine if the primary subject of discussion is Apache Lucene itself — 
         including its APIs, versions, features, usage, configuration, performance characteristics, or 
         internal mechanisms.
-        
         Context: We are OpenSearch, which uses Lucene as a core dependency. Documents in our repositories 
         may discuss Lucene features for the purpose of understanding, adopting, optimizing, or improving 
         them for OpenSearch's benefit. This is still "mainly about Lucene."
-        
         True if:
         - The document analyzes, explains, evaluates, or benchmarks Lucene features, APIs, or behavior
         - The document discusses how to use, configure, or optimize a Lucene feature
@@ -33,21 +30,17 @@ tasks:
         - The document discusses about an issue, bug, or fix that is related to Lucene functionality
         - Lucene's internal mechanisms (e.g., BKD trees, postings, segments, query types) are the core subject
         - Even if contextualized as "how OpenSearch can adopt/benefit from this Lucene feature"
-        
         False if:
         - The document is primarily about OpenSearch architecture, configuration, or behavior
         - Lucene is mentioned only incidentally or as a dependency detail
         - The main focus is on OpenSearch-specific implementation, not the underlying Lucene feature
         - Logs, stack traces, or error messages are the primary content
-        
         Important: Do not be swayed by:
         - Repository ownership (OpenSearch vs. Lucene repo)
         - Document framing or title
         - Whether it mentions "OpenSearch" more than "Lucene"
-        
         Focus on: Is Lucene's feature, behavior, or mechanism being analyzed and discussed as the 
         primary subject?
-        
         Respond with a single word: "true" or "false"
       llmProvider: 'bedrock'
       llmModel: 'us.anthropic.claude-haiku-4-5-20251001-v1:0'
