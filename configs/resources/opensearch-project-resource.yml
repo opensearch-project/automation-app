@@ -139,3 +139,5 @@ organizations:
       - name: oscar-ai-bot
       - name: dashboards-traces
       - name: opensearch-olap
+      - name: time-series-db
+      - name: agentops
