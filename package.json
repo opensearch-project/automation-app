@@ -26,11 +26,11 @@
     "junit": "jest --reporters=jest-junit"
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.840.0",
-    "@aws-sdk/client-cloudwatch": "^3.664.0",
-    "@aws-sdk/client-opensearch": "^3.658.1",
-    "@aws-sdk/client-s3": "^3.666.0",
-    "@aws-sdk/client-sts": "^3.658.1",
+    "@aws-sdk/client-bedrock-runtime": "^3.986.0",
+    "@aws-sdk/client-cloudwatch": "^3.986.0",
+    "@aws-sdk/client-opensearch": "^3.986.0",
+    "@aws-sdk/client-s3": "^3.986.0",
+    "@aws-sdk/client-sts": "^3.986.0",
     "@aws-sdk/types": "^3.654.0",
     "@octokit/rest": "^21.0.2",
     "@opensearch-project/opensearch": "^2.12.0",
