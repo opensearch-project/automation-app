@@ -141,3 +141,8 @@ organizations:
       - name: opensearch-olap
       - name: time-series-db
       - name: observability-stack
+      - name: agent-trace-eval-scheduler
+      - name: opensearch-launchpad
+      - name: neural-sparse-cpp
+      - name: genai-observability-sdk-py
+      - name: opensearch-agent-server
