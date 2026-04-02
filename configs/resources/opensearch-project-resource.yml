@@ -146,3 +146,6 @@ organizations:
       - name: neural-sparse-cpp
       - name: genai-observability-sdk-py
       - name: opensearch-agent-server
+      - name: dashboards-job-scheduler
+      - name: opensearch-agent-skills
+      - name: genai-observability-sdk-ts
