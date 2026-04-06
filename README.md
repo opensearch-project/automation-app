@@ -59,7 +59,7 @@ OPERATION_CONFIG=configs/operations/sample-operation.yml \
 npm run dev
 ```
 
-**Note**: You should run `npm run start` instead in production to run prettier / eslint / jest before starting the service.
+**Note**: You should run `npm run build && npm run start` instead in production to run prettier / eslint / jest before starting the service.
 
 When you run the above command, the following takes place:
 
