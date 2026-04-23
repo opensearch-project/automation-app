@@ -149,3 +149,4 @@ organizations:
       - name: dashboards-job-scheduler
       - name: opensearch-agent-skills
       - name: genai-observability-sdk-ts
+      - name: opensearch-flux
