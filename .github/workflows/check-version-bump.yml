@@ -8,10 +8,10 @@ jobs:
   check-version-bump:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Check if version has been updated
         id: check
-        uses: EndBug/version-check@v2
+        uses: EndBug/version-check@d17247dd94ca7b39d0b0691399be8d7c510622c9 # v2
         with:
           file-url: 'https://raw.githubusercontent.com/opensearch-project/automation-app/refs/heads/${{ github.event.pull_request.base.ref }}/package.json'
           static-checking: localIsNew
