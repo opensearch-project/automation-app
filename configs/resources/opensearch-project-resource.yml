@@ -150,3 +150,4 @@ organizations:
       - name: opensearch-agent-skills
       - name: genai-observability-sdk-ts
       - name: opensearch-flux
+      - name: workload-advisor
