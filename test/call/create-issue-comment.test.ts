@@ -41,20 +41,24 @@ describe('createIssueCommentFunctions', () => {
         info: jest.fn(),
         error: jest.fn(),
       },
-      issue: jest.fn().mockResolvedValue({
-        body: `${args.text}`,
-      }),
+      issue: jest.fn().mockImplementation(({ body }) =>
+        Promise.resolve({
+          body,
+        }),
+      ),
       octokit: {
         issues: {
-          createComment: jest.fn().mockResolvedValue({
-            data: {
-              id: 1,
-              user: {
-                login: 'TestUser333',
+          createComment: jest.fn().mockImplementation(({ body }) =>
+            Promise.resolve({
+              data: {
+                id: 1,
+                user: {
+                  login: 'TestUser333',
+                },
+                body: body,
               },
-              body: `${text}`,
-            },
-          }),
+            }),
+          ),
         },
       },
     };
@@ -79,6 +83,21 @@ describe('createIssueCommentFunctions', () => {
       await createIssueComment(app, context, resource, args);
       expect(context.octokit.issues.createComment).toHaveBeenCalledWith({
         body: `${text}`,
+      });
+    });
+
+    it('should not write comment if resource validation fails', async () => {
+      context.payload = {};
+      await createIssueComment(app, context, resource, args);
+      expect(context.octokit.issues.createComment).not.toHaveBeenCalled();
+    });
+
+    it('should handle empty text gracefully', async () => {
+      const emptyArgs = { text: '' };
+      jest.clearAllMocks();
+      await createIssueComment(app, context, resource, emptyArgs);
+      expect(context.octokit.issues.createComment).toHaveBeenCalledWith({
+        body: '',
       });
     });
   });

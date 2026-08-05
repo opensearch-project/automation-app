@@ -92,6 +92,14 @@ describe('labelByKeywordFunctions', () => {
   });
 
   describe('labelByKeyword', () => {
+    it('Return if resource config is invalid', async () => {
+      context.payload.repository.name = 'wrong-repo';
+      await labelByKeyword(app, context, resource, params);
+
+      expect(app.log.error).toHaveBeenCalledWith('test-org/wrong-repo is not defined in resource config!');
+      expect(context.octokit.rest.issues.addLabels).not.toHaveBeenCalled();
+    });
+
     it('Print error and return if keyword and label is empty', async () => {
       await labelByKeyword(app, context, resource, {
         keyword: '',
@@ -103,6 +111,32 @@ describe('labelByKeywordFunctions', () => {
       });
 
       expect(app.log.error).toHaveBeenCalledWith("Invalid input, keyword: '', label: ''");
+    });
+
+    it('Print error if only keyword is empty', async () => {
+      await labelByKeyword(app, context, resource, {
+        keyword: '',
+        keywordIgnoreCase: '',
+        llmPrompt: '',
+        llmProvider: '',
+        llmModel: '',
+        label: 'test',
+      });
+
+      expect(app.log.error).toHaveBeenCalledWith("Invalid input, keyword: '', label: 'test'");
+    });
+
+    it('Print error if only label is empty', async () => {
+      await labelByKeyword(app, context, resource, {
+        keyword: 'test',
+        keywordIgnoreCase: '',
+        llmPrompt: '',
+        llmProvider: '',
+        llmModel: '',
+        label: '',
+      });
+
+      expect(app.log.error).toHaveBeenCalledWith("Invalid input, keyword: 'test', label: ''");
     });
 
     it('Set keywordIgnoreCase to false by default if user does not define', async () => {

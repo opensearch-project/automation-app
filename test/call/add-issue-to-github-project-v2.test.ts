@@ -130,14 +130,25 @@ describe('addIssueToGitHubProjectV2Functions', () => {
     });
 
     it('should print log error when GraphQL call fails', async () => {
-      context.octokit.graphql.mockRejectedValue(new Error('GraphQL request failed'));
+      const error = new Error('GraphQL request failed');
+      context.octokit.graphql.mockRejectedValue(error);
 
       const result = await addIssueToGitHubProjectV2(app, context, resource, params);
 
-      expect(context.octokit.graphql).rejects.toThrow('GraphQL request failed');
-      expect(context.octokit.graphql).toHaveBeenCalled();
       expect(result).toBe(null);
-      expect(app.log.error).toHaveBeenCalledWith('ERROR: Error: GraphQL request failed');
+      expect(app.log.error).toHaveBeenCalledWith(`ERROR: ${error}`);
+    });
+
+    it('should return null if resource validation fails', async () => {
+      context.payload = {};
+      const result = await addIssueToGitHubProjectV2(app, context, resource, params);
+      expect(result).toBe(null);
+    });
+
+    it('should return null if project validation fails', async () => {
+      resource.organizations.get('test-org').projects.delete(222);
+      const result = await addIssueToGitHubProjectV2(app, context, resource, params);
+      expect(result).toBe(null);
     });
   });
 });

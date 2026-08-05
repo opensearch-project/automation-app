@@ -97,15 +97,43 @@ describe('verifyResourceFunctions', () => {
 
     it('should pass if both repository/owner/login and repository/name match respectively', async () => {
       context.payload = {
+        repository: {
+          owner: {
+            login: 'org',
+          },
+          name: 'repo',
+        },
+      };
+      const result = await validateResourceConfig(app, context, resource);
+      expect(result).toBe(true);
+    });
+
+    it('should fail if organization matches but repository does not match', async () => {
+      context.payload = {
         organization: {
           login: 'org',
+        },
+        repository: {
+          name: 'wrong-repo',
+        },
+      };
+      const result = await validateResourceConfig(app, context, resource);
+      expect(app.log.error).toHaveBeenCalledWith('org/wrong-repo is not defined in resource config!');
+      expect(result).toBe(false);
+    });
+
+    it('should fail if repository matches but organization does not match', async () => {
+      context.payload = {
+        organization: {
+          login: 'wrong-org',
         },
         repository: {
           name: 'repo',
         },
       };
       const result = await validateResourceConfig(app, context, resource);
-      expect(result).toBe(true);
+      expect(app.log.error).toHaveBeenCalledWith('wrong-org/repo is not defined in resource config!');
+      expect(result).toBe(false);
     });
   });
 });
