@@ -41,20 +41,24 @@ describe('createIssueCommentFunctions', () => {
         info: jest.fn(),
         error: jest.fn(),
       },
-      issue: jest.fn().mockImplementation(({ body }) => Promise.resolve({
-        body,
-      })),
+      issue: jest.fn().mockImplementation(({ body }) =>
+        Promise.resolve({
+          body,
+        }),
+      ),
       octokit: {
         issues: {
-          createComment: jest.fn().mockImplementation(({ body }) => Promise.resolve({
-            data: {
-              id: 1,
-              user: {
-                login: 'TestUser333',
+          createComment: jest.fn().mockImplementation(({ body }) =>
+            Promise.resolve({
+              data: {
+                id: 1,
+                user: {
+                  login: 'TestUser333',
+                },
+                body: body,
               },
-              body: body,
-            },
-          })),
+            }),
+          ),
         },
       },
     };
