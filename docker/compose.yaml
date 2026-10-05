@@ -7,14 +7,10 @@ services:
       - /bin/bash
       - -c
       - |
-        npm install
         npm start
     environment:
       - RESOURCE_CONFIG=${RESOURCE_CONFIG}
       - OPERATION_CONFIG=${OPERATION_CONFIG}
       - ADDITIONAL_RESOURCE_CONTEXT=${ADDITIONAL_RESOURCE_CONTEXT}
-    volumes:
-      - ../:/usr/share/app
-      - /usr/share/app/node_modules
     ports:
       - '${PORT}:3000'
