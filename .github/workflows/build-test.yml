@@ -12,9 +12,9 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 20
           - 22
           - 24
+          - 26
     runs-on: ubuntu-latest
     if: github.repository == 'opensearch-project/automation-app'
     steps:

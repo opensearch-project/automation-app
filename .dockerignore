@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+*.pem
+!mock-cert.pem
+*.swp*
+.env
+coverage
+junit.xml
+bin
+temp
+.idea
+.DS_Store
+.git
+.github
+Dockerfile
+docker/compose.yaml
