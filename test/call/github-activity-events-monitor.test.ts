@@ -88,4 +88,16 @@ describe('githubActivityEventsMonitor', () => {
     await githubActivityEventsMonitor(app, context, resource);
     expect(app.log.error).toHaveBeenCalledWith('Error indexing event: Error: Indexing failed');
   });
+
+  it('should return early if resource validation fails', async () => {
+    context.payload = {};
+    const mockClient = {
+      index: jest.fn().mockResolvedValue({}),
+    };
+    (OpensearchClient as jest.Mock).mockImplementation(() => {
+      return { getClient: jest.fn().mockResolvedValue(mockClient) };
+    });
+    await githubActivityEventsMonitor(app, context, resource);
+    expect(mockClient.index).not.toHaveBeenCalled();
+  });
 });

@@ -82,6 +82,14 @@ describe('githubWorkflowRunsMonitor', () => {
     jest.clearAllMocks();
   });
 
+  it('should return early if resource validation fails', async () => {
+    const events = ['push'];
+    const workflows = ['test'];
+    context.payload = {};
+    await githubWorkflowRunsMonitor(app, context, resource, { events, workflows });
+    expect(app.log.info).not.toHaveBeenCalledWith('Event not relevant. Not Indexing...');
+  });
+
   it('should skip indexing when the event is not relevant', async () => {
     const events = ['pull_request', 'release'];
     const workflows = ['Publish snapshots to maven'];

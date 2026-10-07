@@ -43,5 +43,11 @@ describe('octokitFunctions', () => {
       expect(app.auth).toHaveBeenCalledWith(installationId);
       expect(result).toBe(octokitMock);
     });
+
+    it('should handle app.auth failure', async () => {
+      const error = new Error('Auth failed');
+      app.auth = jest.fn().mockRejectedValue(error);
+      await expect(octokitAuth(app, installationId)).rejects.toThrow(error);
+    });
   });
 });

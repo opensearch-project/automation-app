@@ -194,5 +194,27 @@ describe('updateGithubProjectV2ItemFieldFunctions', () => {
       expect(result).toBe('update-item-id');
       expect(app.log.info).toHaveBeenCalledWith(graphQLResponse);
     });
+
+    it('should return null if field type is not SINGLE_SELECT', async () => {
+      resource.organizations.get('test-org').projects.get(222).fields.get('Roadmap').fieldType = 'TEXT';
+
+      const result = await updateGithubProjectV2ItemField(app, context, resource, params);
+
+      expect(app.log.error).toHaveBeenCalledWith(
+        "Either 'test-org/222' / 'Roadmap' not exist, or 'Roadmap' has an unsupported field type (currently support: SINGLE_SELECT)",
+      );
+      expect(result).toBe(null);
+    });
+
+    it('should return null if matchingFieldOption is not found', async () => {
+      context.payload.label.name = 'Roadmap:NonExistentOption';
+
+      const result = await updateGithubProjectV2ItemField(app, context, resource, params);
+
+      expect(app.log.error).toHaveBeenCalledWith(
+        "Either 'test-org/222' / 'Roadmap' not exist, or 'Roadmap' has an unsupported field type (currently support: SINGLE_SELECT)",
+      );
+      expect(result).toBe(null);
+    });
   });
 });

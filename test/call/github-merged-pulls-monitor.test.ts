@@ -86,6 +86,12 @@ describe('githubMergedPullsMonitor', () => {
     jest.clearAllMocks();
   });
 
+  it('should return early if resource validation fails', async () => {
+    context.payload = {};
+    await githubMergedPullsMonitor(app, context, resource);
+    expect(app.log.info).not.toHaveBeenCalledWith('PR is closed but not merged. Skipping...');
+  });
+
   it('should skip processing if the pull request is not merged', async () => {
     context.payload.pull_request.merged = false;
     await githubMergedPullsMonitor(app, context, resource);
