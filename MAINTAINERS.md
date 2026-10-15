@@ -14,9 +14,9 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Peter Zhu       | [peterzhuamazon](https://github.com/peterzhuamazon) | Amazon      |
 | Prudhvi Godithi | [prudhvigodithi](https://github.com/prudhvigodithi) | Amazon      |
 | Sayali Gaikawad | [gaiksaya](https://github.com/gaiksaya)             | Amazon      |
-| Theo Truong     | [nhtruong](https://github.com/nhtruong)             | Amazon      |
 
 ## Emeritus
 
 | Maintainer | GitHub ID | Affiliation |
 | ---------- | --------- | ----------- |
+| Theo Truong     | [nhtruong](https://github.com/nhtruong)             | Amazon      |
